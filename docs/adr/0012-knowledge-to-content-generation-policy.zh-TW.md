@@ -20,6 +20,8 @@ Apple LLM Wiki 不只是儲存層。未來使用者可能希望從 wiki knowledg
 
 Generated content 只要包含 factual claims，就必須能追溯到 source-backed facts。Recommendations、教學結構與銷售 framing 可以由 LLM 生成，但必須和 facts 清楚分離。
 
+Factual claims 必須保留 claim-level traceability。Generated content 不能在一整段、一整節或整份腳本中共用單一來源，尤其當該文字包含多個 factual claims 時。
+
 ## Supported Output Types
 
 初始支援內容類型：
@@ -75,8 +77,12 @@ choices:
   - H2
 answer: A17 Pro
 explanation: iPhone 15 Pro uses the A17 Pro chip.
-source_refs:
-  - source:apple-tech-specs-iphone-15-pro
+claim_refs:
+  - claim: iPhone 15 Pro uses the A17 Pro chip.
+    fact_id: fact:iphone-15-pro:uses-chip
+    source_refs:
+      - source_id: source:apple-tech-specs-iphone-15-pro
+        evidence_id: evidence:apple-tech-specs-iphone-15-pro:chip
 ```
 
 除非題目是 historical question，否則 question generation 必須避免 stale facts。
@@ -135,13 +141,27 @@ evidence:
 
 `Evidence` section 必須引用 facts 或 sources。Unsupported benefits 必須改寫成謹慎 guidance 或移除。
 
+## Claim-Level Traceability
+
+Generated content 必須在 factual-claim level 保留 traceability。
+
+規則：
+
+- 每個 factual claim 都應 reference 支持它的 fact 或 facts。
+- 每個 referenced fact 都必須保留 source 與 evidence references。
+- 當文字中有多個 factual claims 時，paragraph-level 或 script-level citation 不足夠。
+- 非 factual framing、narrative transitions、hooks 與 calls to action 若沒有 factual claims，可以不引用。
+- 如果 claim 無法追溯到 facts 與 evidence，必須移除、改寫為 assumption，或送 review。
+
 ## Review Levels
 
 允許的 review levels：
 
-- `auto_publish`: 來自 historical facts 的低風險教育內容
+- `auto_publish`: 低風險、非時效性，且 factual claims 完整追溯到 facts 與 evidence 的內容
 - `needs_review`: sales scripts、recommendations、current product advice
 - `blocked`: 缺少 evidence、使用 stale facts 或有 unsupported claims 的內容
+
+`auto_publish` 不代表降低品質標準。它只適用於低風險、非時效、schema-valid、claim citation level 完整，且沒有 unsupported claims 的內容。
 
 Buying advice、current pricing、availability 與 sales scripts 通常應需要 review。
 
@@ -151,6 +171,7 @@ Generated content 必須通過：
 
 - schema validation
 - citation validation
+- claim-level traceability validation
 - freshness validation
 - unsupported claim detection
 - locale check
