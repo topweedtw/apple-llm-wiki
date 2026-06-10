@@ -30,6 +30,12 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](0011-crawl-validation-and-ingestion-quality-assurance.zh-TW.md)
 - [ADR-012: Knowledge-to-Content Generation Policy](0012-knowledge-to-content-generation-policy.md)
   - [繁體中文](0012-knowledge-to-content-generation-policy.zh-TW.md)
+- [ADR-013: Source of Truth and Derived Views](0013-source-of-truth-and-derived-views.md)
+  - [繁體中文](0013-source-of-truth-and-derived-views.zh-TW.md)
+- [ADR-014: Ingestion Promotion State Machine](0014-ingestion-promotion-state-machine.md)
+  - [繁體中文](0014-ingestion-promotion-state-machine.zh-TW.md)
+- [ADR-015: Index Consistency and Rebuild Policy](0015-index-consistency-and-rebuild-policy.md)
+  - [繁體中文](0015-index-consistency-and-rebuild-policy.zh-TW.md)
 
 ## ADR Set
 
