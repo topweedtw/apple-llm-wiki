@@ -8,6 +8,11 @@ All ADRs live in the [`docs/adr/`](docs/adr/) directory.
 
 Each ADR should have an English version and a Traditional Chinese version.
 
+## Architecture and Implementation
+
+- [Architecture Flow](docs/architecture-flow.md)
+- [Implementation Plan](docs/implementation-plan.md)
+
 - [ADR-001: LLM Wiki Apple Product Knowledge Base](docs/adr/0001-llm-wiki-apple-product-knowledge-base.md)
   - [繁體中文](docs/adr/0001-llm-wiki-apple-product-knowledge-base.zh-TW.md)
 - [ADR-002: Apple Product Entity Schema](docs/adr/0002-apple-product-entity-schema.md)
