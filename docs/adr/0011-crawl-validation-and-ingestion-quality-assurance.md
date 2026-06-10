@@ -95,6 +95,21 @@ Required evidence fields:
 
 Candidate facts without evidence must remain in `candidate_facts` with `review_status: needs_review`, or be rejected. They must not be inserted into the production `facts` table.
 
+### Candidate Issue Validation
+
+Candidate facts may be incomplete, but incompleteness must be explicit.
+
+Required issue tracking:
+
+- missing evidence
+- unresolved subject or object entity
+- unnormalized unit
+- invalid or proposed predicate
+- invalid locale or time qualifier
+- schema mismatch
+
+Promotion is blocked until blocking issues are resolved. Non-blocking issues must be explicitly accepted during review.
+
 ### Entity Resolution Validation
 
 Entity resolution must verify that extracted names map to canonical entity IDs.

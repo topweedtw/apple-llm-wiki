@@ -41,6 +41,36 @@ The system must distinguish production facts from candidate facts:
 
 Incomplete or unreviewed claims must stay in `candidate_facts` or a review queue. They must not be inserted into the production `facts` table.
 
+## Candidate and Promotion Rules
+
+The fact pipeline must follow these rules:
+
+- LLM and parser extraction output always enters `candidate_facts` first.
+- `candidate_facts` may be missing evidence, entity resolution, or normalized units while under review.
+- Every incomplete `candidate_fact` must record `issues` that explain what is missing or invalid.
+- Only candidate facts that pass validation may be promoted into production `facts`.
+- Production `facts.source_refs` is required.
+- Every production `source_ref` must point to an existing evidence record.
+- `needs_review` must not be used as a production fact state to bypass schema requirements.
+- A claim without evidence can only remain in `candidate_facts` or be rejected. It cannot enter production `facts`.
+
+Example candidate fact:
+
+```yaml
+id: candidate-fact:iphone-15-pro:uses-chip:extract-001
+candidate_subject: iPhone 15 Pro
+candidate_predicate: uses_chip
+candidate_value: A17 Pro
+source_id: source:apple-tech-specs-iphone-15-pro
+evidence_refs: []
+entity_resolution: null
+normalized_unit: null
+issues:
+  - missing_evidence
+  - unresolved_subject_entity
+review_status: needs_review
+```
+
 ## Fact Identity
 
 Fact IDs use this format:
@@ -105,6 +135,8 @@ Required production fact fields:
 - `freshness`
 - `created_at`
 - `updated_at`
+
+Each `source_refs` entry must reference an existing source and evidence record.
 
 Optional fields:
 

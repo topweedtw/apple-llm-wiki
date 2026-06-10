@@ -124,6 +124,7 @@ Candidate extraction outputs：
 - source sections
 - extraction confidence
 - unresolved references
+- issues，描述 missing evidence、unresolved entities、unnormalized units 或 schema problems
 
 允許 LLM-assisted extraction，但它只能產生 candidate facts。沒有 evidence 的 candidate fact 可以留在 `candidate_facts` 並標記 `review_status: needs_review`，或被 rejected；不得 promoted into production `facts` table。
 
@@ -157,6 +158,7 @@ Validation checks：
 - subject and object entities exist
 - locale and time qualifiers are valid
 - freshness and confidence are set
+- candidate `issues` 已 resolved、accepted as non-blocking，或 explicitly rejected
 
 Validation failure 應阻擋 publication。
 

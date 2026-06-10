@@ -95,6 +95,21 @@ Parser regressions 應在 production ingestion jobs 執行前 fail。
 
 沒有 evidence 的 candidate facts 必須留在 `candidate_facts`，標記 `review_status: needs_review`，或被 rejected。它們不得插入 production `facts` table。
 
+### Candidate Issue Validation
+
+Candidate facts 可以不完整，但不完整之處必須明確記錄。
+
+必要 issue tracking：
+
+- missing evidence
+- unresolved subject or object entity
+- unnormalized unit
+- invalid or proposed predicate
+- invalid locale or time qualifier
+- schema mismatch
+
+Blocking issues 解決前不得 promotion。Non-blocking issues 必須在 review 中明確接受。
+
 ### Entity Resolution Validation
 
 Entity resolution 必須確認 extracted names 能映射到 canonical entity IDs。
