@@ -109,7 +109,7 @@ Snapshots 讓後續 fact review 與 freshness comparison 成為可能。
 - `locale`
 - `review_status`
 
-未分類 sources 預設為 `unknown` 與 `needs_review`。
+未分類 sources 預設為 `trust_level: unknown` 與 `review_status: needs_review`。
 
 ## Extraction
 
@@ -146,12 +146,28 @@ Resolution 應使用：
 
 ## Validation
 
-Candidate facts 在 review 與 promotion 前必須通過 validation。
+Validation 分為兩階段：candidate intake validation 與 promotion validation。
 
-Validation checks：
+Candidate intake validation 檢查 candidate record 是否可進入 review。當缺漏或不合法項目已明確記錄在 `issues` 時，可以允許不完整 records 留在 review。
+
+Candidate intake checks：
 
 - required fields exist
 - predicate is allowed or proposed
+- value type matches predicate
+- unit is normalized，或已記錄 `unnormalized_unit` issue
+- source refs point to existing evidence，或已記錄 `missing_evidence` issue
+- subject and object entities exist，或已記錄 unresolved entity issues
+- locale and time qualifiers are valid
+- extraction confidence is set
+- candidate `issues` 描述 missing evidence、unresolved entities、unnormalized units 或 schema problems
+
+Promotion validation 檢查 candidate fact 是否可成為 production fact。
+
+Promotion checks：
+
+- all production fact required fields exist
+- predicate is allowed
 - value type matches predicate
 - unit is normalized
 - source refs point to existing evidence

@@ -146,8 +146,10 @@ Good use cases:
 Rules:
 
 - LLM extraction produces candidates, not production facts.
-- Every extracted fact must include evidence.
-- LLM output must pass schema validation.
+- Extracted candidate facts should include evidence when available.
+- Missing evidence must be recorded as a blocking candidate issue before review.
+- Production facts must include evidence before promotion.
+- LLM output must pass candidate intake validation before review and promotion validation before publication.
 - Low-confidence extraction must remain in `candidate_facts` with `review_status: needs_review`.
 
 ## Queue and Workflow
@@ -198,6 +200,7 @@ Before publication, crawled and extracted data must pass:
 - source classification
 - snapshot creation
 - entity resolution
+- candidate issue validation
 - fact schema validation
 - evidence validation
 - freshness assignment

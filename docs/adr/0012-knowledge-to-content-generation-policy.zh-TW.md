@@ -77,6 +77,7 @@ choices:
   - H2
 answer: A17 Pro
 explanation: iPhone 15 Pro uses the A17 Pro chip.
+freshness_status: historical
 claim_refs:
   - claim: iPhone 15 Pro uses the A17 Pro chip.
     fact_id: fact:iphone-15-pro:uses-chip

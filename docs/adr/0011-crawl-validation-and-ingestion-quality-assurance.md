@@ -169,10 +169,11 @@ Required gates before publication:
 2. snapshot creation
 3. parser or extraction validation
 4. evidence validation
-5. entity resolution validation
-6. fact schema validation
-7. freshness assignment
-8. review approval for risky or ambiguous data
+5. candidate issue validation
+6. entity resolution validation
+7. fact schema validation
+8. freshness assignment
+9. review approval for risky or ambiguous data
 
 ## Metrics
 

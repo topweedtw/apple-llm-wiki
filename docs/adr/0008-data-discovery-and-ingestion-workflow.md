@@ -109,7 +109,7 @@ Required classification fields:
 - `locale`
 - `review_status`
 
-Unclassified sources default to `unknown` and `needs_review`.
+Unclassified sources default to `trust_level: unknown` and `review_status: needs_review`.
 
 ## Extraction
 
@@ -146,12 +146,28 @@ If resolution is ambiguous, the candidate fact remains in review and must not be
 
 ## Validation
 
-Candidate facts must pass validation before review and before promotion.
+Validation has two stages: candidate intake validation and promotion validation.
 
-Validation checks:
+Candidate intake validation checks whether a candidate record is reviewable. It may allow incomplete records when the missing or invalid parts are explicitly captured in `issues`.
+
+Candidate intake checks:
 
 - required fields exist
 - predicate is allowed or proposed
+- value type matches predicate
+- unit is normalized, or an `unnormalized_unit` issue is recorded
+- source refs point to existing evidence, or a `missing_evidence` issue is recorded
+- subject and object entities exist, or unresolved entity issues are recorded
+- locale and time qualifiers are valid
+- extraction confidence is set
+- candidate `issues` describe missing evidence, unresolved entities, unnormalized units, or schema problems
+
+Promotion validation checks whether a candidate fact can become a production fact.
+
+Promotion checks:
+
+- all production fact required fields exist
+- predicate is allowed
 - value type matches predicate
 - unit is normalized
 - source refs point to existing evidence
