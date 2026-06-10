@@ -7,7 +7,9 @@ Architecture Decision Records for designing an LLM-native knowledge base focused
 All ADRs live in the [`adr/`](adr/) directory.
 
 - [ADR-001: LLM Wiki Apple Product Knowledge Base](adr/0001-llm-wiki-apple-product-knowledge-base.md)
+  - [繁體中文](adr/0001-llm-wiki-apple-product-knowledge-base.zh-TW.md)
 - [ADR-002: Apple Product Entity Schema](adr/0002-apple-product-entity-schema.md)
+  - [繁體中文](adr/0002-apple-product-entity-schema.zh-TW.md)
 
 ## Planned ADRs
 
