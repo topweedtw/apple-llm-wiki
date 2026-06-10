@@ -109,7 +109,9 @@ Required classification fields:
 - `locale`
 - `review_status`
 
-Unclassified sources default to `trust_level: unknown` and `review_status: needs_review`.
+Unclassified sources default to:
+- `trust_level`: `unknown`
+- `review_status`: `needs_review`
 
 ## Extraction
 

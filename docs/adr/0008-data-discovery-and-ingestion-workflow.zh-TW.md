@@ -109,7 +109,9 @@ Snapshots 讓後續 fact review 與 freshness comparison 成為可能。
 - `locale`
 - `review_status`
 
-未分類 sources 預設為 `trust_level: unknown` 與 `review_status: needs_review`。
+未分類 sources 的預設值為：
+- `trust_level`: `unknown`
+- `review_status`: `needs_review`
 
 ## Extraction
 
