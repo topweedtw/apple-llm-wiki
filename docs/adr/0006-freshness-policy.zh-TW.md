@@ -22,14 +22,15 @@ Freshness 是 review 與 validity signal。它不同於 confidence、trust level
 
 ## Freshness States
 
-允許值：
+Production fact freshness 允許值：
 
 - `current`
 - `possibly_stale`
 - `historical`
 - `deprecated`
 - `disputed`
-- `needs_review`
+
+`needs_review` 不是 production fact freshness value。它屬於 candidate records 與 review queues。
 
 ### `current`
 
@@ -60,12 +61,6 @@ Fact 不應再用於新回答，除非作為歷史。
 相同 scope 與 time range 下來源互相衝突。
 
 用於系統應呈現不確定性的情況。
-
-### `needs_review`
-
-Fact 已匯入或產生，但尚未核准。
-
-用於 unreviewed ingestion output、low-confidence extraction 或 unknown sources。
 
 ## Freshness TTLs
 
@@ -124,7 +119,7 @@ Wiki pages 應從其 facts 繼承 freshness。
 
 - 優先使用 `current` facts。
 - 只有 `possibly_stale` facts 時需提醒。
-- 避免用 `needs_review` facts 給出確定回答。
+- 忽略尚未 promoted to production facts 的 candidate records。
 - 說明 `disputed` facts。
 - 有幫助時使用精確 verification dates。
 
@@ -141,13 +136,13 @@ Wiki pages 應從其 facts 繼承 freshness。
 
 - 需要 periodic refresh jobs。
 - 需要依 fact type 設定 TTL。
-- 有些 facts 在 review 前可能暫時降級。
+- 有些 candidate records 在 review 並 promoted 前可能暫時不能用於回答。
 
 ## 考慮過的替代方案
 
 ### 單一 Last Updated Timestamp
 
-不採用，因為一個 timestamp 無法區分 current、historical、disputed 與 unreviewed claims。
+不採用，因為一個 timestamp 無法區分 current、historical、disputed 與 review-pending claims。
 
 ### 每次都即時重新抓來源
 

@@ -180,7 +180,8 @@ Freshness states:
 - `deprecated`
 - `historical`
 - `disputed`
-- `needs_review`
+
+`needs_review` is a review status for candidate records, not a production fact freshness state.
 
 Pricing, sales status, and support status should be treated as high-change data and reviewed regularly.
 
@@ -249,7 +250,7 @@ Use a combination of parsers and LLM-assisted extraction to extract:
 - OS support
 - Pricing and sales status
 
-LLM-extracted facts must not be accepted without source spans or citation evidence.
+LLM-extracted candidate facts must not be promoted into production facts without source spans or citation evidence.
 
 ### 3. Review and Versioning
 

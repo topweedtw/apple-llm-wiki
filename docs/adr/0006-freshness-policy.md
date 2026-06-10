@@ -22,14 +22,15 @@ Freshness is a review and validity signal. It is not the same as confidence, tru
 
 ## Freshness States
 
-Allowed values:
+Allowed production fact freshness values:
 
 - `current`
 - `possibly_stale`
 - `historical`
 - `deprecated`
 - `disputed`
-- `needs_review`
+
+`needs_review` is not a production fact freshness value. It belongs to candidate records and review queues.
 
 ### `current`
 
@@ -60,12 +61,6 @@ Use when a newer fact supersedes it or when a source is retired.
 Sources conflict for the same scope and time range.
 
 Use when the system should surface uncertainty.
-
-### `needs_review`
-
-The fact has been imported or generated but has not been approved.
-
-Use for unreviewed ingestion output, low-confidence extraction, or unknown sources.
 
 ## Freshness TTLs
 
@@ -124,7 +119,7 @@ When answering current questions, the LLM must:
 
 - Prefer `current` facts.
 - Warn when only `possibly_stale` facts are available.
-- Avoid confident answers from `needs_review` facts.
+- Ignore candidate records that have not been promoted to production facts.
 - Explain `disputed` facts.
 - Use exact verification dates when helpful.
 
@@ -141,13 +136,13 @@ Costs:
 
 - Requires periodic refresh jobs.
 - Requires TTL configuration by fact type.
-- Some facts may be temporarily downgraded until reviewed.
+- Some candidate records may remain unavailable for answers until reviewed and promoted.
 
 ## Alternatives Considered
 
 ### Single Last Updated Timestamp
 
-Rejected because one timestamp cannot distinguish current, historical, disputed, and unreviewed claims.
+Rejected because one timestamp cannot distinguish current, historical, disputed, and review-pending claims.
 
 ### Always Re-fetch Live Sources
 

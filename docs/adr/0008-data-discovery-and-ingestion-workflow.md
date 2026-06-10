@@ -18,7 +18,7 @@ Without a defined ingestion workflow, the system risks adding duplicated sources
 
 Use a staged data discovery and ingestion workflow.
 
-No source or fact should move directly from search results into production knowledge. Every addition should pass through discovery, source registration, extraction, entity resolution, evidence creation, validation, review, and publication.
+No source or claim should move directly from search results into production knowledge. Every addition should pass through discovery, source registration, extraction into candidate records, entity resolution, evidence creation, validation, review, and publication.
 
 ## Workflow Overview
 
@@ -119,13 +119,13 @@ Candidate extraction outputs:
 
 - candidate entities
 - candidate aliases
-- candidate facts
+- candidate facts stored in `candidate_facts`
 - evidence records
 - source sections
 - extraction confidence
 - unresolved references
 
-LLM-assisted extraction is allowed, but extracted facts must include evidence references. A fact without evidence must remain rejected or `needs_review`.
+LLM-assisted extraction is allowed, but it produces candidate facts only. A candidate fact without evidence may remain in `candidate_facts` with `review_status: needs_review`, or be rejected. It must not be promoted into the production `facts` table.
 
 ## Entity Resolution
 
@@ -141,11 +141,11 @@ Resolution should use:
 - generation relationships
 - source context
 
-If resolution is ambiguous, the fact remains in review and must not be published.
+If resolution is ambiguous, the candidate fact remains in review and must not be published.
 
 ## Validation
 
-Facts must pass validation before review.
+Candidate facts must pass validation before review and before promotion.
 
 Validation checks:
 
@@ -170,7 +170,7 @@ Review should answer these questions:
 - Is the value normalized correctly?
 - Is the claim time-sensitive or locale-specific?
 - Does it conflict with existing facts?
-- Should the fact be published, revised, rejected, or marked `needs_review`?
+- Should the candidate fact be promoted to production, revised, rejected, or kept in review?
 
 ## Publication
 
@@ -178,7 +178,7 @@ Publishing accepted data should:
 
 - create or update source records
 - create or update entities
-- create or update facts
+- promote accepted candidate facts into production facts
 - attach evidence records
 - update wiki pages or page queues
 - update indexes
@@ -213,7 +213,7 @@ Costs:
 
 - More workflow steps before data becomes available.
 - Requires queues, validation, and review tooling.
-- Some useful data may stay pending until reviewed.
+- Some useful candidate data may stay pending until reviewed.
 
 ## Alternatives Considered
 

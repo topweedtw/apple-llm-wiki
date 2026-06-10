@@ -32,7 +32,7 @@ source page
 → cited answer
 ```
 
-No candidate fact should be published unless it passes required validation.
+No candidate fact should be promoted into the production `facts` table unless it passes required validation.
 
 ## Validation Layers
 
@@ -93,7 +93,7 @@ Required evidence fields:
 - `quote` or equivalent source span
 - `retrieved_at`
 
-Facts without evidence must remain `needs_review` or rejected.
+Candidate facts without evidence must remain in `candidate_facts` with `review_status: needs_review`, or be rejected. They must not be inserted into the production `facts` table.
 
 ### Entity Resolution Validation
 

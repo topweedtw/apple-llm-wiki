@@ -34,6 +34,13 @@ A fact is a single claim about one or more entities. Facts must be traceable to 
 
 Facts are not wiki paragraphs. Facts are normalized records that can be queried, compared, cited, and revised.
 
+The system must distinguish production facts from candidate facts:
+
+- `candidate_facts` are staging records produced by crawling, parsing, LLM-assisted extraction, or manual entry. They may be incomplete while awaiting review.
+- production `facts` are accepted knowledge-base records. They must have `source_refs` that point to evidence records.
+
+Incomplete or unreviewed claims must stay in `candidate_facts` or a review queue. They must not be inserted into the production `facts` table.
+
 ## Fact Identity
 
 Fact IDs use this format:
@@ -58,9 +65,9 @@ Rules:
 - Locale, region, or configuration can appear as a qualifier when needed.
 - If a claim changes over time, keep the identity stable and update validity metadata or create a replacement fact.
 
-## Base Fact Fields
+## Base Production Fact Fields
 
-Every fact should support these fields:
+Every production fact should support these fields:
 
 ```yaml
 id: fact:iphone-15-pro:uses-chip
@@ -85,7 +92,7 @@ updated_at: 2026-06-10
 last_verified_at: 2026-06-10
 ```
 
-Required fields:
+Required production fact fields:
 
 - `id`
 - `type`
@@ -312,7 +319,9 @@ Guidelines:
 - Use `high` for direct official source evidence.
 - Use `medium` for reliable secondary sources or indirect official evidence.
 - Use `low` for weak, inferred, or partially supported claims.
-- Use `unknown` when imported data has not been reviewed.
+- Use `unknown` only for candidate facts or imported records that have not yet been reviewed.
+
+Production facts should normally use `high`, `medium`, or `low`; unreviewed data should stay outside the production `facts` table.
 
 Confidence is not freshness. A fact can be high-confidence and stale.
 
@@ -325,16 +334,17 @@ Allowed freshness values:
 - `deprecated`
 - `historical`
 - `disputed`
-- `needs_review`
 
 Freshness should be updated independently from confidence.
+
+`needs_review` is a review status for candidate facts, not a production fact freshness value.
 
 Examples:
 
 - Announcement date is usually `historical`.
 - Current sales status may be `current` or `possibly_stale`.
 - A claim with conflicting sources should be `disputed`.
-- An imported claim without review should be `needs_review`.
+- An imported claim without review should remain in `candidate_facts` with `review_status: needs_review`.
 
 ## Locale and Region
 

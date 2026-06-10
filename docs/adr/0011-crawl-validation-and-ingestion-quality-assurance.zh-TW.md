@@ -32,7 +32,7 @@ source page
 → cited answer
 ```
 
-Candidate fact 必須通過必要 validation 後才能 publish。
+Candidate fact 必須通過必要 validation 後，才能 promoted into production `facts` table。
 
 ## Validation Layers
 
@@ -93,7 +93,7 @@ Parser regressions 應在 production ingestion jobs 執行前 fail。
 - `quote` 或 equivalent source span
 - `retrieved_at`
 
-沒有 evidence 的 facts 必須維持 `needs_review` 或 rejected。
+沒有 evidence 的 candidate facts 必須留在 `candidate_facts`，標記 `review_status: needs_review`，或被 rejected。它們不得插入 production `facts` table。
 
 ### Entity Resolution Validation
 

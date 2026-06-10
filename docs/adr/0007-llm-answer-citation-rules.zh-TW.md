@@ -26,7 +26,7 @@ Answer layer 必須保留 uncertainty、source quality、freshness 與 locale bo
 4. 對 current、latest、still supported、available、pricing 與 buying-advice questions 檢查 freshness。
 5. 不要把 locale-specific facts 當成 global。
 6. 不要悄悄合併 conflicting facts。
-7. 當只有 `needs_review`、`unknown` 或 `possibly_stale` facts 時，不要用確定語氣回答。
+7. 不要在 final answers 使用 candidate records。當只有 `possibly_stale` production facts 可用時，必須帶 freshness context 謹慎回答。
 8. 區分 source-backed facts 與 recommendations 或 reasoning。
 
 ## Citation Requirements

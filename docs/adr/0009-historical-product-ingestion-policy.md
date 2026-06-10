@@ -172,9 +172,9 @@ Do not invent missing historical details.
 
 If a value is unknown:
 
-- leave the fact absent, or
-- create an explicit `unknown` fact only when useful for review workflows, and
-- mark it `needs_review`.
+- leave the production fact absent, or
+- create an explicit `unknown` candidate fact only when useful for review workflows, and
+- keep it in `candidate_facts` with `review_status: needs_review`.
 
 Example:
 
@@ -182,7 +182,7 @@ Example:
 id: fact:old-product:original-price:unknown
 predicate: has_original_price
 value: unknown
-freshness: needs_review
+review_status: needs_review
 ```
 
 ## Review Rules

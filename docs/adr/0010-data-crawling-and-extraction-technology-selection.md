@@ -148,7 +148,7 @@ Rules:
 - LLM extraction produces candidates, not production facts.
 - Every extracted fact must include evidence.
 - LLM output must pass schema validation.
-- Low-confidence extraction must be marked `needs_review`.
+- Low-confidence extraction must remain in `candidate_facts` with `review_status: needs_review`.
 
 ## Queue and Workflow
 
@@ -166,7 +166,7 @@ Upgrade to Temporal only when workflows require long-running retries, human appr
 
 Initial system of record:
 
-- Postgres for sources, entities, facts, evidence, reviews, and job state
+- Postgres for sources, entities, production facts, candidate facts, evidence, reviews, and job state
 
 Initial search:
 

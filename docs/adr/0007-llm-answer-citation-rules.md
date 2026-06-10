@@ -26,7 +26,7 @@ The answer layer must preserve uncertainty, source quality, freshness, and local
 4. Check freshness for current, latest, still supported, available, pricing, and buying-advice questions.
 5. Do not treat locale-specific facts as global.
 6. Do not silently merge conflicting facts.
-7. Do not answer with certainty when only `needs_review`, `unknown`, or `possibly_stale` facts are available.
+7. Do not use candidate records in final answers. When only `possibly_stale` production facts are available, answer cautiously with freshness context.
 8. Distinguish source-backed facts from recommendations or reasoning.
 
 ## Citation Requirements

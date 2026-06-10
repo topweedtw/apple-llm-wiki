@@ -18,7 +18,7 @@ Proposed
 
 採用分階段的 data discovery and ingestion workflow。
 
-任何 source 或 fact 都不應直接從搜尋結果進入 production knowledge。每筆新增資料都應經過 discovery、source registration、extraction、entity resolution、evidence creation、validation、review 與 publication。
+任何 source 或 claim 都不應直接從搜尋結果進入 production knowledge。每筆新增資料都應經過 discovery、source registration、extraction into candidate records、entity resolution、evidence creation、validation、review 與 publication。
 
 ## Workflow Overview
 
@@ -119,13 +119,13 @@ Candidate extraction outputs：
 
 - candidate entities
 - candidate aliases
-- candidate facts
+- 存在 `candidate_facts` 的 candidate facts
 - evidence records
 - source sections
 - extraction confidence
 - unresolved references
 
-允許 LLM-assisted extraction，但抽取出的 facts 必須包含 evidence references。沒有 evidence 的 fact 必須維持 rejected 或 `needs_review`。
+允許 LLM-assisted extraction，但它只能產生 candidate facts。沒有 evidence 的 candidate fact 可以留在 `candidate_facts` 並標記 `review_status: needs_review`，或被 rejected；不得 promoted into production `facts` table。
 
 ## Entity Resolution
 
@@ -141,11 +141,11 @@ Resolution 應使用：
 - generation relationships
 - source context
 
-如果 resolution 有歧義，fact 應留在 review，不得 publish。
+如果 resolution 有歧義，candidate fact 應留在 review，不得 publish。
 
 ## Validation
 
-Facts 在 review 前必須通過 validation。
+Candidate facts 在 review 與 promotion 前必須通過 validation。
 
 Validation checks：
 
@@ -170,7 +170,7 @@ Review 應回答以下問題：
 - Value 是否 normalized correctly？
 - Claim 是否 time-sensitive 或 locale-specific？
 - 是否與 existing facts 衝突？
-- Fact 應 publish、revise、reject，還是標記為 `needs_review`？
+- Candidate fact 應 promoted to production、revise、reject，還是保留在 review？
 
 ## Publication
 
@@ -178,7 +178,7 @@ Review 應回答以下問題：
 
 - create or update source records
 - create or update entities
-- create or update facts
+- promote accepted candidate facts into production facts
 - attach evidence records
 - update wiki pages or page queues
 - update indexes
@@ -213,7 +213,7 @@ Re-ingestion 應產生 diffs，而不是 destructive overwrites。
 
 - 資料可用前需要更多 workflow steps。
 - 需要 queues、validation 與 review tooling。
-- 有些有用資料可能在 review 前維持 pending。
+- 有些有用 candidate data 可能在 review 前維持 pending。
 
 ## 考慮過的替代方案
 

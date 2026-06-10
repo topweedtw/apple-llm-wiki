@@ -180,7 +180,8 @@ freshness 狀態：
 - `deprecated`
 - `historical`
 - `disputed`
-- `needs_review`
+
+`needs_review` 是 candidate records 的 review status，不是 production fact freshness state。
 
 價格、販售狀態與支援狀態應視為高變動資料，定期重新檢查。
 
@@ -249,7 +250,7 @@ wiki_page:
 - OS 支援
 - 價格與販售狀態
 
-LLM 抽取出的 facts 不得在沒有 source span 或 citation evidence 的情況下直接接受。
+LLM 抽取出的 candidate facts 不得在沒有 source span 或 citation evidence 的情況下 promoted into production facts。
 
 ### 3. 審核與版本化
 
