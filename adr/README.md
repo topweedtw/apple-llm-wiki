@@ -20,7 +20,9 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](0006-freshness-policy.zh-TW.md)
 - [ADR-007: LLM Answer Citation Rules](0007-llm-answer-citation-rules.md)
   - [繁體中文](0007-llm-answer-citation-rules.zh-TW.md)
+- [ADR-008: Data Discovery and Ingestion Workflow](0008-data-discovery-and-ingestion-workflow.md)
+  - [繁體中文](0008-data-discovery-and-ingestion-workflow.zh-TW.md)
 
-## Initial ADR Set
+## ADR Set
 
-The initial architecture decision set is complete through ADR-007. Future ADRs should continue the same bilingual structure.
+Future ADRs should continue the same bilingual structure.
