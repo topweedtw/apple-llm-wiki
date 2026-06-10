@@ -14,10 +14,15 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](adr/0002-apple-product-entity-schema.zh-TW.md)
 - [ADR-003: Fact Model and Citation Format](adr/0003-fact-model-and-citation-format.md)
   - [繁體中文](adr/0003-fact-model-and-citation-format.zh-TW.md)
+- [ADR-004: Source Trust Levels](adr/0004-source-trust-levels.md)
+  - [繁體中文](adr/0004-source-trust-levels.zh-TW.md)
+- [ADR-005: Hybrid Retrieval Strategy](adr/0005-hybrid-retrieval-strategy.md)
+  - [繁體中文](adr/0005-hybrid-retrieval-strategy.zh-TW.md)
+- [ADR-006: Freshness Policy](adr/0006-freshness-policy.md)
+  - [繁體中文](adr/0006-freshness-policy.zh-TW.md)
+- [ADR-007: LLM Answer Citation Rules](adr/0007-llm-answer-citation-rules.md)
+  - [繁體中文](adr/0007-llm-answer-citation-rules.zh-TW.md)
 
-## Planned ADRs
+## Initial ADR Set
 
-- ADR-004: Source Trust Levels
-- ADR-005: Hybrid Retrieval Strategy
-- ADR-006: Freshness Policy
-- ADR-007: LLM Answer Citation Rules
+The initial architecture decision set is complete through ADR-007. Future ADRs should continue the same bilingual structure.
