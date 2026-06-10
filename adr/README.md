@@ -26,6 +26,10 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](0009-historical-product-ingestion-policy.zh-TW.md)
 - [ADR-010: Data Crawling and Extraction Technology Selection](0010-data-crawling-and-extraction-technology-selection.md)
   - [繁體中文](0010-data-crawling-and-extraction-technology-selection.zh-TW.md)
+- [ADR-011: Crawl Validation and Ingestion Quality Assurance](0011-crawl-validation-and-ingestion-quality-assurance.md)
+  - [繁體中文](0011-crawl-validation-and-ingestion-quality-assurance.zh-TW.md)
+- [ADR-012: Knowledge-to-Content Generation Policy](0012-knowledge-to-content-generation-policy.md)
+  - [繁體中文](0012-knowledge-to-content-generation-policy.zh-TW.md)
 
 ## ADR Set
 
