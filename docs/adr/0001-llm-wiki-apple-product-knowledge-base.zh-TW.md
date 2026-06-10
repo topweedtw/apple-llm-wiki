@@ -106,17 +106,21 @@ event:apple-event-2023-09
 fact 範例：
 
 ```yaml
-fact_id: fact:iphone-15-pro:chip
+id: fact:iphone-15-pro:uses-chip
+type: EntityRelationFact
 subject: product:iphone-15-pro
-predicate: has_chip
+predicate: uses_chip
 object: chip:a17-pro
 value: A17 Pro
+value_type: entity
 unit: null
 valid_from: 2023-09-12
 valid_to: null
-source_ids:
-  - source:apple-tech-specs-iphone-15-pro
+source_refs:
+  - source_id: source:apple-tech-specs-iphone-15-pro
+    evidence_id: evidence:apple-tech-specs-iphone-15-pro:chip
 confidence: high
+freshness: historical
 last_verified_at: 2026-06-10
 ```
 
