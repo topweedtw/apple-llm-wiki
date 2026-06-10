@@ -24,6 +24,8 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](0008-data-discovery-and-ingestion-workflow.zh-TW.md)
 - [ADR-009: Historical Product Ingestion Policy](0009-historical-product-ingestion-policy.md)
   - [繁體中文](0009-historical-product-ingestion-policy.zh-TW.md)
+- [ADR-010: Data Crawling and Extraction Technology Selection](0010-data-crawling-and-extraction-technology-selection.md)
+  - [繁體中文](0010-data-crawling-and-extraction-technology-selection.zh-TW.md)
 
 ## ADR Set
 
