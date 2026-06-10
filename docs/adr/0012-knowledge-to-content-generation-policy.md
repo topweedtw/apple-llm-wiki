@@ -134,12 +134,22 @@ Example:
 feature: A17 Pro chip
 advantage: Higher graphics and compute capability
 benefit: Better experience for gaming, video editing, and Pro workflows
-evidence:
-  - fact:iphone-15-pro:uses-chip
-  - source:apple-tech-specs-iphone-15-pro
+claim_refs:
+  - field: feature
+    claim: iPhone 15 Pro uses the A17 Pro chip.
+    fact_id: fact:iphone-15-pro:uses-chip
+    source_refs:
+      - source_id: source:apple-tech-specs-iphone-15-pro
+        evidence_id: evidence:apple-tech-specs-iphone-15-pro:chip
+  - field: advantage
+    claim: A17 Pro provides higher graphics and compute capability.
+    fact_id: fact:a17-pro:graphics-compute-capability
+    source_refs:
+      - source_id: source:apple-a17-pro-overview
+        evidence_id: evidence:apple-a17-pro-overview:graphics-compute
 ```
 
-The `Evidence` section must cite facts or sources. Unsupported benefits must be rewritten as cautious guidance or removed.
+The FABE evidence or `claim_refs` section must cite facts with source and evidence references. Source-only citation is not sufficient. Unsupported benefits must be rewritten as cautious guidance or removed.
 
 ## Claim-Level Traceability
 
