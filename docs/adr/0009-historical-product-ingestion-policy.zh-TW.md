@@ -237,7 +237,6 @@ Historical ingestion review 必須檢查：
 
 ## 後續工作
 
-- 將 `official_archived` 加入 source trust level taxonomy。
 - 定義 archive source metadata fields。
 - 建立 historical product discovery query templates。
 - 建立 old product ingestion review checklist。

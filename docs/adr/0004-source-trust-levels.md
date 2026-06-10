@@ -44,9 +44,21 @@ Examples:
 - Apple Store pages
 - Apple marketing pages
 - Apple press images or product copy
-- Apple archived pages
 
 Use when no better official primary source is available, or as additional evidence.
+
+### `official_archived`
+
+Archived Apple source where the original content was published by Apple but is no longer available at the live URL, or where the archived version is needed to preserve historical context.
+
+Examples:
+
+- Apple pages captured through the Wayback Machine
+- archived Apple technical specification pages
+- archived Apple product pages
+- archived Apple support or marketing pages
+
+Use for historical facts, launch-era specifications, discontinued product information, and original product context. Do not use archived official sources as evidence for current sales status, current support status, current pricing, or current availability.
 
 ### `trusted_secondary`
 
@@ -126,10 +138,12 @@ When multiple facts compete for an answer:
 
 1. Prefer sources with more specific scope.
 2. Prefer `official_primary` over other trust levels.
-3. Prefer newer verification for time-sensitive claims.
-4. Prefer locale-matching sources for locale-specific questions.
-5. Prefer reviewed sources over unreviewed sources.
-6. Preserve conflicting lower-ranked sources for audit.
+3. Prefer `official_archived` for historical claims when the live official source is unavailable or has changed.
+4. Do not use `official_archived` for current-status claims when live sources exist or current verification is required.
+5. Prefer newer verification for time-sensitive claims.
+6. Prefer locale-matching sources for locale-specific questions.
+7. Prefer reviewed sources over unreviewed sources.
+8. Preserve conflicting lower-ranked sources for audit.
 
 ## Conflict Handling
 
@@ -139,6 +153,7 @@ If sources disagree, do not silently overwrite facts.
 - Different locale or region: keep separate facts.
 - Different time range: use `valid_from` and `valid_to`.
 - Official source versus secondary source: rank official higher, but retain secondary evidence if useful.
+- Live official source versus archived official source: use the live source for current claims and the archived source for historical claims.
 
 ## Consequences
 

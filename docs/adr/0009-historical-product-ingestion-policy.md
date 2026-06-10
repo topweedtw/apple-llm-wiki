@@ -237,7 +237,6 @@ Rejected because secondary sources are valuable but should not outrank direct of
 
 ## Follow-up Work
 
-- Add `official_archived` to source trust level taxonomy.
 - Define archive source metadata fields.
 - Build historical product discovery query templates.
 - Create review checklist for old product ingestion.
