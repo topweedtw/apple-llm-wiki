@@ -5,10 +5,10 @@ This directory contains Architecture Decision Records for the Apple LLM Wiki pro
 ## Accepted / Proposed
 
 - [ADR-001: LLM Wiki Apple Product Knowledge Base](0001-llm-wiki-apple-product-knowledge-base.md)
+- [ADR-002: Apple Product Entity Schema](0002-apple-product-entity-schema.md)
 
 ## Planned
 
-- ADR-002: Apple Product Entity Schema
 - ADR-003: Fact Model and Citation Format
 - ADR-004: Source Trust Levels
 - ADR-005: Hybrid Retrieval Strategy
