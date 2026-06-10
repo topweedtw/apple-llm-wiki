@@ -24,6 +24,8 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](adr/0007-llm-answer-citation-rules.zh-TW.md)
 - [ADR-008: Data Discovery and Ingestion Workflow](adr/0008-data-discovery-and-ingestion-workflow.md)
   - [繁體中文](adr/0008-data-discovery-and-ingestion-workflow.zh-TW.md)
+- [ADR-009: Historical Product Ingestion Policy](adr/0009-historical-product-ingestion-policy.md)
+  - [繁體中文](adr/0009-historical-product-ingestion-policy.zh-TW.md)
 
 ## ADR Set
 
