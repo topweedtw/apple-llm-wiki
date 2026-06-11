@@ -134,8 +134,12 @@ Costs:
 
 ## Follow-up Work
 
-- Define `index_outbox` schema.
-- Define indexed document metadata schema.
-- Add canonical hydration to answer generation.
-- Add index drift checks.
-- Add full and scoped rebuild commands.
+- Tracked by implementation plan Phase 1: define the `index_outbox` schema.
+- Tracked by implementation plan Phase 6: define indexed document metadata for
+  derived views and projections.
+- Tracked by implementation plan Phase 5 and Phase 6: add canonical hydration
+  to answer generation after projection lookup.
+- Tracked by implementation plan Phase 6 and initial backlog: add index drift
+  checks.
+- Tracked by implementation plan Phase 6 and initial backlog: add full and
+  scoped rebuild commands.

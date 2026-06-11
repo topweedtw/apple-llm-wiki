@@ -198,7 +198,7 @@ entity:
   name: iPhone 15 Pro
   product_line: product-line:iphone
   generation: product-generation:iphone-15-series
-  announced_at: 2023-09-12
+  first_seen_at: 2023-09-12
   released_at: 2023-09-22
   discontinued_at: null
   status: historical

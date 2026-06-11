@@ -222,6 +222,7 @@ Operating systems and support:
   value_types: [enum]
   temporal: true
   locale_policy: optional
+  notes: Covers product support, repair, vintage, obsolete, and OS support lifecycle states. Initial enum values should include supported, limited, vintage, obsolete, and unsupported.
 ```
 
 Lifecycle and availability:
@@ -327,3 +328,7 @@ Costs:
 - Add predicate role validation to promotion.
 - Add entity resolution scoring tests using predicate role constraints.
 - Add candidate revalidation when predicate definitions change.
+- Add `has_trade_in_value` and any other predicate with pending TTL policies to
+  the registry before Phase 7.
+- Define allowed enum values for `has_support_status`, `has_sales_status`, and
+  other enum-valued predicates before implementing ingestion validators.

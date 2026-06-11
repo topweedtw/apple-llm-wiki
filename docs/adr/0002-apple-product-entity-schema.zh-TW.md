@@ -293,7 +293,6 @@ relationships:
 - `runs_os`
 - `supports_os`
 - `introduced_at`
-- `announced_at`
 - `replaced_by`
 - `replaces`
 - `has_feature`

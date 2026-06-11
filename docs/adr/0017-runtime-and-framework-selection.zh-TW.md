@@ -97,6 +97,8 @@ Framework code 應呼叫 domain services。Domain services 不應依賴 Fastify 
 - `index rebuild`
 - `index check-drift`
 
+`review` command group 會展開為 ADR-019 定義的完整 review operations。
+
 GraphQL、gRPC 與 public SDKs 不屬於第一版 implementation 範圍。
 
 ## Database and Migrations

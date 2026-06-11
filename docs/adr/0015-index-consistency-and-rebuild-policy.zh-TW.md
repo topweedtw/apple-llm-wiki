@@ -134,8 +134,12 @@ Costs：
 
 ## 後續工作
 
-- 定義 `index_outbox` schema。
-- 定義 indexed document metadata schema。
-- 在 answer generation 加入 canonical hydration。
-- 增加 index drift checks。
-- 增加 full 與 scoped rebuild commands。
+- 已由 implementation plan Phase 1 追蹤：定義 `index_outbox` schema。
+- 已由 implementation plan Phase 6 追蹤：定義 derived views 與 projections
+  的 indexed document metadata。
+- 已由 implementation plan Phase 5 與 Phase 6 追蹤：projection lookup 後，在
+  answer generation 加入 canonical hydration。
+- 已由 implementation plan Phase 6 與 initial backlog 追蹤：增加 index drift
+  checks。
+- 已由 implementation plan Phase 6 與 initial backlog 追蹤：增加 full 與
+  scoped rebuild commands。

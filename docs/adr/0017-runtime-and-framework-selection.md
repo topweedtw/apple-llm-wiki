@@ -108,6 +108,9 @@ Initial CLI commands:
 - `index rebuild`
 - `index check-drift`
 
+The `review` command group expands to the full review operations defined in
+ADR-019.
+
 GraphQL, gRPC, and public SDKs are out of scope for the first implementation.
 
 ## Database and Migrations

@@ -218,6 +218,7 @@ Operating systems and support：
   value_types: [enum]
   temporal: true
   locale_policy: optional
+  notes: 涵蓋 product support、repair、vintage、obsolete，以及 OS support lifecycle states。初始 enum values 應包含 supported、limited、vintage、obsolete、unsupported。
 ```
 
 Lifecycle and availability：
@@ -320,3 +321,7 @@ Costs：
 - 在 promotion 加入 predicate role validation。
 - 增加使用 predicate role constraints 的 entity resolution scoring tests。
 - Predicate definitions 變更時，加入 candidate revalidation。
+- 在 Phase 7 前，將 `has_trade_in_value` 以及其他仍有 pending TTL policies
+  的 predicate 加入 registry。
+- 在實作 ingestion validators 前，定義 `has_support_status`、`has_sales_status`
+  與其他 enum-valued predicates 的允許 enum values。
