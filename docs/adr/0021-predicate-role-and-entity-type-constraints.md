@@ -35,6 +35,7 @@ Each predicate definition should include:
 - whether an object is required
 - allowed object entity types when object is required
 - allowed value types
+- allowed enum values when `enum` is an allowed value type
 - allowed unit dimensions when applicable
 - whether the predicate is temporal
 - whether locale or region is required, optional, or prohibited
@@ -85,6 +86,37 @@ derived_allowed: false
 status: active
 preferred_predicate: null
 ```
+
+## Enum Value Sets
+
+Enum-valued predicates use a closed `allowed_values` set stored in the registry.
+Promotion validation rejects any production fact whose enum `value` is not in
+the predicate's `allowed_values`. Adding or removing an enum value requires
+updating this ADR and promotion validation, the same discipline applied to
+locale policy and predicate status values.
+
+`has_support_status`:
+
+- `supported`: still within service, repair, or software support.
+- `vintage`: Apple vintage product status.
+- `obsolete`: Apple obsolete product status.
+- `unsupported`: no longer receives support or updates, including OS versions
+  past their support window.
+
+`has_sales_status`:
+
+- `available`: currently sold by Apple.
+- `preorder`: announced with open pre-orders, not yet shipping.
+- `announced`: announced but not yet orderable.
+- `sold_out`: temporarily unavailable.
+- `discontinued`: no longer sold by Apple.
+
+`compatible_with`:
+
+- `compatible`: fully compatible.
+- `incompatible`: not compatible.
+- `partial`: compatible with conditions or limitations; record the condition in
+  `qualifiers`, for example `requires_os`.
 
 ## Initial Predicate Role Registry
 
@@ -191,6 +223,7 @@ Compatibility and requirements:
   object_required: true
   object_types: [Product, ProductGeneration, Variant, Accessory, OperatingSystem, Feature]
   value_types: [enum]
+  allowed_values: [compatible, incompatible, partial]
   locale_policy: optional
 
 - predicate: requires
@@ -220,9 +253,10 @@ Operating systems and support:
   object_required: false
   object_types: []
   value_types: [enum]
+  allowed_values: [supported, vintage, obsolete, unsupported]
   temporal: true
   locale_policy: optional
-  notes: Covers product support, repair, vintage, obsolete, and OS support lifecycle states. Initial enum values should include supported, limited, vintage, obsolete, and unsupported.
+  notes: Covers product support, repair, vintage, and obsolete product status plus OS support lifecycle states. `supported` means still within service, repair, or software support; `vintage` and `obsolete` follow Apple product lifecycle status; `unsupported` covers products or OS versions that no longer receive support or updates.
 ```
 
 Lifecycle and availability:
@@ -233,6 +267,7 @@ Lifecycle and availability:
   object_required: false
   object_types: []
   value_types: [enum]
+  allowed_values: [available, preorder, announced, sold_out, discontinued]
   temporal: true
   locale_policy: optional
   notes: Region-specific availability or sales status facts must include locale or region.
@@ -283,6 +318,7 @@ Promotion validation must reject a candidate fact when:
 - required object is missing
 - object is present but object entity type is not allowed
 - `value_type` is not allowed for the predicate
+- `value_type` is `enum` and the value is not in the predicate's `allowed_values`
 - unit dimension does not match the predicate's allowed unit dimensions
 - locale or region policy is violated
 - a non-derived fact uses a derived-only predicate
@@ -330,5 +366,6 @@ Costs:
 - Add candidate revalidation when predicate definitions change.
 - Add `has_trade_in_value` and any other predicate with pending TTL policies to
   the registry before Phase 7.
-- Define allowed enum values for `has_support_status`, `has_sales_status`, and
-  other enum-valued predicates before implementing ingestion validators.
+- Enum value sets for `has_support_status`, `has_sales_status`, and
+  `compatible_with` are defined in this ADR; add `allowed_values` for any new
+  enum-valued predicate before implementing its ingestion validator.

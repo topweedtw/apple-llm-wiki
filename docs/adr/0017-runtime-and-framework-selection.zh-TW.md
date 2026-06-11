@@ -26,7 +26,11 @@ Implementation plan 仍將 runtime、web framework、database access、migration
 
 ## 決策
 
-初始 runtime 使用 current Node.js Active LTS release 上的 TypeScript。
+初始 runtime 使用 Node.js 26.x 上的 TypeScript。
+
+刻意選用 Node.js 26.x，即使在本決策當下它仍屬 Current release line、尚未轉為
+Active LTS。專案會 pin major version（26.x）以確保本機與 CI build 的可重現性，
+並在 26.x 轉為 Active LTS、或有更新的 LTS 值得升級時，重新檢視此 pin。
 
 初始 framework choices：
 

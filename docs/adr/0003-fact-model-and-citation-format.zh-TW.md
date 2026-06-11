@@ -312,6 +312,12 @@ retrieved_at: 2026-06-10
 
 Quotes 應簡短，只要足以驗證主張即可。
 
+Evidence quotes 不得超過 300 個字元，以 Unicode 字元計，以支援多語系來源內容。
+若 candidate fact 的 quote 超過上限，會記錄一個 blocking 的
+`evidence_quote_too_long` issue，且在 quote 縮短或該 issue 於 review 中被明確
+接受前不得 promotion。當 locator type 為 `table`、`row` 或 cell 層級時，quote
+只應包含相關的 cell 或 row value，而非整張表。
+
 ## Citation Format
 
 內部 citation format：

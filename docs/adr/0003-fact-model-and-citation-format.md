@@ -322,6 +322,13 @@ Allowed locator types:
 
 Quotes should be short and only long enough to verify the claim.
 
+Evidence quotes must not exceed 300 characters, counted as Unicode characters
+to support multi-locale source content. A candidate fact whose quote exceeds the
+limit records a blocking `evidence_quote_too_long` issue and cannot be promoted
+until the quote is shortened or the issue is explicitly accepted in review. When
+the locator type is `table`, `row`, or a cell-level locator, the quote should
+contain only the relevant cell or row value, not the full table.
+
 ## Citation Format
 
 Internal citation format:

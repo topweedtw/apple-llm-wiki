@@ -430,10 +430,9 @@ before its phase starts.
 
 Before Phase 2:
 
-- Define allowed enum values for `has_support_status`, `has_sales_status`, and
-  other enum-valued predicates (ADR-021 follow-up).
-- Define the evidence quote length limit and a snapshot retention note covering
-  the licensing risk of storing and quoting Apple content.
+- The snapshot retention note covering the licensing risk of storing and
+  quoting Apple content is deferred and is not a blocker for the first vertical
+  slice.
 
 Before Phase 4:
 
@@ -512,6 +511,15 @@ Resolved by ADR-021:
 - Predicate definitions declare allowed subject entity types, object requirements, allowed object entity types, value types, unit dimensions, temporal behavior, and locale policy.
 - Entity resolution scoring uses predicate role constraints.
 - Promotion validation rejects facts whose subject/object entity types or value types do not match the predicate registry.
+- Enum-valued predicates (`has_support_status`, `has_sales_status`,
+  `compatible_with`) declare closed `allowed_values` sets validated at
+  promotion.
+
+Resolved by ADR-003 (evidence quote limit):
+
+- Evidence quotes are capped at 300 Unicode characters. A quote over the limit
+  records a blocking `evidence_quote_too_long` issue (enforced in ADR-008,
+  ADR-011, and ADR-014) and blocks promotion until shortened or accepted.
 
 Resolved by ADR-018:
 
@@ -523,7 +531,7 @@ Resolved by ADR-018:
 
 Resolved by ADR-017:
 
-- Runtime: TypeScript on Node.js Active LTS.
+- Runtime: TypeScript on Node.js 26.x (Current line, pinned ahead of LTS).
 - Package manager: pnpm.
 - Web API: Fastify REST endpoints.
 - CLI: Commander commands.

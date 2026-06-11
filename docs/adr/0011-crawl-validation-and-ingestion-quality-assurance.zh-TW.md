@@ -95,6 +95,10 @@ Parser regressions 應在 production ingestion jobs 執行前 fail。
 
 沒有 evidence 的 candidate facts 必須留在 `candidate_facts`，標記 `review_status: needs_review`，或被 rejected。它們不得插入 production `facts` table。
 
+Evidence quotes 必須在 ADR-003 定義的 300 字元上限內。若 candidate fact 的 quote
+超過上限，會記錄一個 blocking 的 `evidence_quote_too_long` issue，並在解決前
+被阻擋 promotion。
+
 ### Candidate Issue Validation
 
 Candidate facts 可以不完整，但不完整之處必須明確記錄。
@@ -107,6 +111,7 @@ Candidate facts 可以不完整，但不完整之處必須明確記錄。
 - invalid or proposed predicate
 - invalid locale or time qualifier
 - schema mismatch
+- evidence quote 超過長度上限
 
 Blocking issues 解決前不得 promotion。Non-blocking issues 必須在 review 中明確接受。
 

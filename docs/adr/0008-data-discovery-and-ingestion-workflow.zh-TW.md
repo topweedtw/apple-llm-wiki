@@ -161,6 +161,7 @@ Candidate intake checks：
 - normalized `value` 存在，或已記錄 missing-normalization issue
 - 來源文字透過 evidence、`raw_value` 或 source snapshot context 保留
 - source refs point to existing evidence，或已記錄 `missing_evidence` issue
+- evidence quote 在長度上限內，或已記錄 `evidence_quote_too_long` issue
 - subject and object entities exist，或已記錄 unresolved entity issues
 - locale and time qualifiers are valid
 - extraction confidence is set
@@ -177,6 +178,7 @@ Promotion checks：
 - `value` 已依 predicate 與 `value_type` normalized
 - `raw_value` 即使存在，也不能取代 evidence
 - source refs point to existing evidence
+- evidence quotes 在長度上限內
 - subject and object entities exist
 - locale and time qualifiers are valid
 - freshness and confidence are set

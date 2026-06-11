@@ -29,7 +29,13 @@ keeps the first vertical slice easier to test, deploy, and understand.
 
 ## Decision
 
-Use TypeScript on the current Node.js Active LTS release as the initial runtime.
+Use TypeScript on Node.js 26.x as the initial runtime.
+
+Node.js 26.x is selected deliberately even though it is on the Current release
+line and is not yet promoted to Active LTS at the time of this decision. The
+project pins the major version (26.x) for reproducible local and CI builds and
+will revisit the pin when 26.x reaches Active LTS or when a newer LTS warrants
+an upgrade.
 
 Use the following initial framework choices:
 

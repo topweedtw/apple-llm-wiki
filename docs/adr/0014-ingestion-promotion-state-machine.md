@@ -137,6 +137,7 @@ Examples of blocking issues:
 - invalid predicate
 - schema mismatch
 - invalid locale or time qualifier
+- evidence quote exceeding the length limit, recorded as `evidence_quote_too_long`
 
 Examples of non-blocking issues:
 

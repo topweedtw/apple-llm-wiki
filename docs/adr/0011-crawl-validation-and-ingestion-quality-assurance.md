@@ -95,6 +95,10 @@ Required evidence fields:
 
 Candidate facts without evidence must remain in `candidate_facts` with `review_status: needs_review`, or be rejected. They must not be inserted into the production `facts` table.
 
+Evidence quotes must be within the 300-character limit defined in ADR-003. A
+candidate fact whose quote exceeds the limit records a blocking
+`evidence_quote_too_long` issue and is blocked from promotion until resolved.
+
 ### Candidate Issue Validation
 
 Candidate facts may be incomplete, but incompleteness must be explicit.
@@ -107,6 +111,7 @@ Required issue tracking:
 - invalid or proposed predicate
 - invalid locale or time qualifier
 - schema mismatch
+- evidence quote exceeding the length limit
 
 Promotion is blocked until blocking issues are resolved. Non-blocking issues must be explicitly accepted during review.
 

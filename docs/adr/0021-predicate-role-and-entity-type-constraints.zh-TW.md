@@ -35,6 +35,7 @@ Entity IDs 可能有效，但 predicate role 是錯的。
 - object 是否 required
 - object required 時允許的 object entity types
 - allowed value types
+- value type 含 `enum` 時允許的 enum values
 - applicable 時允許的 unit dimensions
 - predicate 是否 temporal
 - locale 或 region 是 required、optional 或 prohibited
@@ -85,6 +86,34 @@ derived_allowed: false
 status: active
 preferred_predicate: null
 ```
+
+## Enum Value Sets
+
+Enum-valued predicates 使用存放在 registry 的封閉 `allowed_values` 集合。
+Promotion validation 會 reject 任何 enum `value` 不在該 predicate `allowed_values`
+中的 production fact。新增或移除 enum value 必須同步更新本 ADR 與 promotion
+validation，與 locale policy 和 predicate status values 採用相同紀律。
+
+`has_support_status`：
+
+- `supported`：仍在服務、維修或軟體支援範圍。
+- `vintage`：Apple vintage 產品狀態。
+- `obsolete`：Apple obsolete 產品狀態。
+- `unsupported`：不再獲得支援或更新，包含已過支援期的 OS 版本。
+
+`has_sales_status`：
+
+- `available`：Apple 目前在售。
+- `preorder`：已發表並開放預購、尚未出貨。
+- `announced`：已發表但尚不可訂購。
+- `sold_out`：暫時缺貨。
+- `discontinued`：Apple 已停售。
+
+`compatible_with`：
+
+- `compatible`：完全相容。
+- `incompatible`：不相容。
+- `partial`：有條件或有限制地相容；條件記錄在 `qualifiers`，例如 `requires_os`。
 
 ## Initial Predicate Role Registry
 
@@ -187,6 +216,7 @@ Compatibility and requirements：
   object_required: true
   object_types: [Product, ProductGeneration, Variant, Accessory, OperatingSystem, Feature]
   value_types: [enum]
+  allowed_values: [compatible, incompatible, partial]
   locale_policy: optional
 
 - predicate: requires
@@ -216,9 +246,10 @@ Operating systems and support：
   object_required: false
   object_types: []
   value_types: [enum]
+  allowed_values: [supported, vintage, obsolete, unsupported]
   temporal: true
   locale_policy: optional
-  notes: 涵蓋 product support、repair、vintage、obsolete，以及 OS support lifecycle states。初始 enum values 應包含 supported、limited、vintage、obsolete、unsupported。
+  notes: 涵蓋 product support、repair、vintage、obsolete 產品狀態，以及 OS support lifecycle states。`supported` 表示仍在服務、維修或軟體支援範圍；`vintage` 與 `obsolete` 依 Apple 產品生命週期狀態；`unsupported` 涵蓋不再獲得支援或更新的產品或 OS 版本。
 ```
 
 Lifecycle and availability：
@@ -229,6 +260,7 @@ Lifecycle and availability：
   object_required: false
   object_types: []
   value_types: [enum]
+  allowed_values: [available, preorder, announced, sold_out, discontinued]
   temporal: true
   locale_policy: optional
   notes: Region-specific availability or sales status facts must include locale or region.
@@ -279,6 +311,7 @@ Promotion validation 必須在以下情況 reject candidate fact：
 - required object 缺失
 - object 存在但 object entity type 不被允許
 - `value_type` 不被 predicate 允許
+- `value_type` 是 `enum`，但 value 不在 predicate 的 `allowed_values` 中
 - unit dimension 不符合 predicate 允許的 unit dimensions
 - locale 或 region policy 違反
 - non-derived fact 使用 derived-only predicate
@@ -323,5 +356,6 @@ Costs：
 - Predicate definitions 變更時，加入 candidate revalidation。
 - 在 Phase 7 前，將 `has_trade_in_value` 以及其他仍有 pending TTL policies
   的 predicate 加入 registry。
-- 在實作 ingestion validators 前，定義 `has_support_status`、`has_sales_status`
-  與其他 enum-valued predicates 的允許 enum values。
+- `has_support_status`、`has_sales_status` 與 `compatible_with` 的 enum value
+  sets 已在本 ADR 定義；新增任何 enum-valued predicate 時，須在實作其 ingestion
+  validator 前補上 `allowed_values`。

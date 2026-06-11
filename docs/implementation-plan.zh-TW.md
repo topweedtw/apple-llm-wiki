@@ -417,10 +417,8 @@ Open decisions 以 pre-phase checklist 追蹤。每個項目必須在對應 phas
 
 Phase 2 之前：
 
-- 定義 `has_support_status`、`has_sales_status` 與其他 enum-valued predicates
-  允許的 enum values（ADR-021 follow-up）。
-- 定義 evidence quote 長度上限，以及說明儲存與引用 Apple content 授權風險的
-  snapshot retention note。
+- 儲存與引用 Apple content 授權風險的 snapshot retention note 延後處理，不是第一條
+  vertical slice 的 blocker。
 
 Phase 4 之前：
 
@@ -494,6 +492,14 @@ Resolved by ADR-021:
 - Predicate definitions 會宣告 allowed subject entity types、object requirements、allowed object entity types、value types、unit dimensions、temporal behavior、locale policy。
 - Entity resolution scoring 使用 predicate role constraints。
 - Promotion validation 會拒絕 subject/object entity types 或 value types 不符合 predicate registry 的 facts。
+- Enum-valued predicates（`has_support_status`、`has_sales_status`、
+  `compatible_with`）宣告封閉的 `allowed_values` 集合，並在 promotion 時驗證。
+
+Resolved by ADR-003（evidence quote limit）:
+
+- Evidence quotes 上限為 300 個 Unicode 字元。超過上限的 quote 會記錄一個
+  blocking 的 `evidence_quote_too_long` issue（由 ADR-008、ADR-011、ADR-014
+  強制執行），並在縮短或被接受前阻擋 promotion。
 
 Resolved by ADR-018:
 
@@ -503,7 +509,7 @@ Resolved by ADR-018:
 
 Resolved by ADR-017:
 
-- Runtime: TypeScript on Node.js Active LTS。
+- Runtime: TypeScript on Node.js 26.x（Current line，先於 LTS 鎖定）。
 - Package manager: pnpm。
 - Web API: Fastify REST endpoints。
 - CLI: Commander commands。

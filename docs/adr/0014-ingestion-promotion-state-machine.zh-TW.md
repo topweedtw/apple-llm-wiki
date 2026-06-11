@@ -133,6 +133,7 @@ Blocking issues 範例：
 - invalid predicate
 - schema mismatch
 - invalid locale or time qualifier
+- evidence quote 超過長度上限，使用 `evidence_quote_too_long` 記錄
 
 Non-blocking issues 範例：
 
