@@ -108,7 +108,7 @@ Implementation 可以計算更細的 weighted score，但必須映射到這些 b
 - score `>= 0.95`
 - top candidate 至少比 next candidate 高 `0.10`
 - source scope 不與 candidate 衝突
-- entity type 符合 predicate role
+- entity type 符合 ADR-021 定義的 predicate role
 - 沒有 existing fact 或 relationship 造成 same-scope contradiction
 - match method 不是 LLM-only
 
@@ -187,7 +187,7 @@ Promotion validation 必須確認：
 
 - subject resolution decision 是 `auto_resolved` 或 reviewer-approved
 - object required 時，object resolution decision 是 `auto_resolved` 或 reviewer-approved
-- resolved entity type 符合 predicate vocabulary
+- resolved entity type 符合 ADR-021 定義的 predicate role registry
 - ambiguity 已解決，或經 review 明確接受
 - non-auto resolutions 有 review decisions 記錄
 
@@ -208,7 +208,7 @@ Costs：
 
 ## 後續工作
 
-- 定義 predicate role expectations for subject and object entity types。
+- 使用 ADR-021 作為 subject 與 object entity type constraints 的 predicate role registry。
 - 增加 entity resolution scoring tests。
 - 增加 "iPad Pro" 與 "MacBook Pro" 等 ambiguous names fixtures。
 - 增加 review UI 或 CLI output 以顯示 ambiguity sets 與 signals。

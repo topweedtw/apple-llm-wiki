@@ -62,6 +62,7 @@ Initial tables:
 - `review_decisions`
 - `publication_events`
 - `unit_registry`
+- `predicate_registry`
 - `index_outbox`
 
 Required constraints:
@@ -400,14 +401,15 @@ Answer tests:
 7. Implement deterministic tech spec parser.
 8. Implement entity resolution scoring.
 9. Implement unit registry and unit normalization.
-10. Implement candidate intake validation.
-11. Implement review decision records.
-12. Implement CLI review commands.
-13. Implement fact promotion service.
-14. Implement index outbox writer.
-15. Implement exact entity and fact lookup.
-16. Implement cited answer endpoint.
-17. Add rebuild and drift-check commands.
+10. Implement predicate role registry.
+11. Implement candidate intake validation.
+12. Implement review decision records.
+13. Implement CLI review commands and output fixtures.
+14. Implement fact promotion service.
+15. Implement index outbox writer.
+16. Implement exact entity and fact lookup.
+17. Implement cited answer endpoint.
+18. Add rebuild and drift-check commands.
 
 ## Open Decisions
 
@@ -428,6 +430,12 @@ Resolved by ADR-020:
 - `inch` is canonical for inch values; `in`, `inches`, and `"` are aliases.
 - `GB` and `TB` are decimal storage units; `GiB` and `TiB` are binary units and must not be silently converted.
 - Promotion validation checks units against the registry.
+
+Resolved by ADR-021:
+
+- Predicate definitions declare allowed subject entity types, object requirements, allowed object entity types, value types, unit dimensions, temporal behavior, and locale policy.
+- Entity resolution scoring uses predicate role constraints.
+- Promotion validation rejects facts whose subject/object entity types or value types do not match the predicate registry.
 
 Resolved by ADR-018:
 

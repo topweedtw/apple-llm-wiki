@@ -256,9 +256,10 @@ Allowed values:
 - `deprecated`
 - `merged`
 - `redirect`
-- `needs_review`
 
 Sales status, support status, and availability should be facts because they can vary by time and locale.
+
+`needs_review` must not be used as a production entity status. Entity review state belongs to candidate entity records, review queues, and review decisions. A production entity must have one of the lifecycle statuses above.
 
 ## Relationships
 

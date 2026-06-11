@@ -125,6 +125,200 @@ fact promote <candidate_fact_id>
 
 Command names 可在 implementation 時調整，但 operation coverage 必須保留。
 
+## CLI Output Contract
+
+Review CLI commands 必須支援兩種 output modes：
+
+- 預設 human-readable output，用於 interactive review
+- `--json` output，用於 scripts、tests 與 future UI integration
+
+`--json` output 是 stable contract。Human-readable output 可以為了清楚度調整，但必須包含相同 safety-critical fields。
+
+### List Output
+
+List commands 必須顯示足夠資訊，讓 reviewers 可以選擇下一個 item，同時不能隱藏 blockers。
+
+Human-readable list output 應包含：
+
+```text
+ID                         STATE         PREDICATE          ENTITY/ SOURCE        BLOCKERS  UPDATED
+candidate-fact:...         needs_review  uses_chip          product:iphone-15-pro 2         2026-06-11
+```
+
+JSON list output：
+
+```json
+{
+  "items": [
+    {
+      "id": "candidate-fact:iphone-15-pro:uses-chip:extract-001",
+      "state": "needs_review",
+      "predicate": "uses_chip",
+      "source_id": "source:apple-tech-specs-iphone-15-pro",
+      "subject_candidate_id": "product:iphone-15-pro",
+      "blocking_issue_count": 0,
+      "non_blocking_issue_count": 1,
+      "updated_at": "2026-06-11T10:00:00Z"
+    }
+  ],
+  "next_cursor": null
+}
+```
+
+### Candidate Fact Detail Output
+
+`review fact show` 必須 render review packet，包含 safe approval decision 所需的全部 context。
+
+必要 sections：
+
+- candidate summary
+- source summary
+- snapshot summary
+- proposed fact
+- evidence
+- entity resolution
+- issues
+- conflicts and overlaps
+- promotion preview
+- allowed next actions
+- review history
+
+JSON detail output：
+
+```json
+{
+  "candidate_fact": {
+    "id": "candidate-fact:iphone-15-pro:uses-chip:extract-001",
+    "state": "needs_review",
+    "predicate": "uses_chip",
+    "value": "A17 Pro",
+    "value_type": "entity",
+    "unit": null,
+    "raw_value": "A17 Pro chip"
+  },
+  "source": {
+    "id": "source:apple-tech-specs-iphone-15-pro",
+    "title": "iPhone 15 Pro - Technical Specifications",
+    "url": "https://support.apple.com/kb/SP903",
+    "trust_level": "official_primary",
+    "locale": "en-US",
+    "fetched_at": "2026-06-11T10:00:00Z"
+  },
+  "snapshot": {
+    "checksum": "sha256:...",
+    "parser_version": "tech-spec-parser@0.1.0"
+  },
+  "evidence": [
+    {
+      "id": "evidence:apple-tech-specs-iphone-15-pro:chip",
+      "locator": {
+        "type": "section",
+        "value": "Chip"
+      },
+      "quote": "A17 Pro chip",
+      "context": "Chip: A17 Pro chip"
+    }
+  ],
+  "entity_resolution": {
+    "subject": {
+      "candidate_id": "product:iphone-15-pro",
+      "score": 1.0,
+      "decision": "auto_resolved",
+      "signals": ["exact_canonical_name", "source_scope_match"],
+      "ambiguity_set": []
+    },
+    "object": {
+      "candidate_id": "chip:a17-pro",
+      "score": 0.95,
+      "decision": "auto_resolved",
+      "signals": ["exact_alias", "predicate_role_match"],
+      "ambiguity_set": []
+    }
+  },
+  "issues": [],
+  "conflicts": [],
+  "promotion_preview": {
+    "fact_id": "fact:iphone-15-pro:uses-chip",
+    "would_emit_outbox_events": ["fact.promoted"]
+  },
+  "allowed_actions": ["review fact approve", "review fact reject"],
+  "review_history": []
+}
+```
+
+### Entity Resolution Output
+
+`review entity show` 必須顯示 top candidate、score、threshold result、signals 與 ambiguity set。
+
+Human-readable output 必須清楚標示結果是：
+
+- eligible for auto-resolution
+- needs human review
+- unresolved
+- blocked by predicate role mismatch
+
+### Mutation Output
+
+Mutating commands 必須印出 decision record ID 與 final state。
+
+範例：
+
+```text
+review_decision: review-decision:2026-06-11:000123
+target: candidate-fact:iphone-15-pro:uses-chip:extract-001
+operation: approve
+previous_state: needs_review
+next_state: approved
+```
+
+JSON mutation output：
+
+```json
+{
+  "review_decision_id": "review-decision:2026-06-11:000123",
+  "target_id": "candidate-fact:iphone-15-pro:uses-chip:extract-001",
+  "operation": "approve",
+  "previous_state": "needs_review",
+  "next_state": "approved"
+}
+```
+
+### Dry-Run Output
+
+任何 bulk-capable 或 promotion command 都必須支援 `--dry-run`。
+
+Dry-run output 必須顯示：
+
+- target IDs
+- proposed state changes
+- blockers
+- 將會 emitted 的 outbox events
+- command 是否 safe to run without changes
+
+### Error Output
+
+Errors 必須 structured and actionable。
+
+JSON error output：
+
+```json
+{
+  "error": {
+    "code": "promotion_blocked",
+    "message": "Candidate fact has unresolved blocking issues.",
+    "target_id": "candidate-fact:iphone-15-pro:uses-chip:extract-001",
+    "blockers": [
+      {
+        "issue_id": "candidate-issue:missing-evidence",
+        "state": "open_blocking"
+      }
+    ]
+  }
+}
+```
+
+Human-readable errors 必須包含 error code、target ID、blockers，以及 obvious 時 reviewer 下一步可執行的 command。
+
 ## Web UI Upgrade Triggers
 
 以下任一條件成立時，建立 web review UI：
@@ -186,6 +380,7 @@ Costs：
 ## 後續工作
 
 - 將 CLI command specs 加入 implementation tasks。
+- 增加 list、show、mutation、dry-run 與 error cases 的 CLI output fixtures。
 - 定義 review decision database schema。
 - 增加 review operations 與 audit records tests。
 - 增加 candidate facts 與 entity ambiguity 的 sample review output。

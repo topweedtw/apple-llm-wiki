@@ -135,6 +135,205 @@ fact promote <candidate_fact_id>
 Command names may change during implementation, but the operation coverage must
 remain.
 
+## CLI Output Contract
+
+Review CLI commands must support two output modes:
+
+- default human-readable output for interactive review
+- `--json` output for scripts, tests, and future UI integration
+
+The `--json` output is a stable contract. Human-readable output may change for
+clarity, but it must include the same safety-critical fields.
+
+### List Output
+
+List commands must show enough information for reviewers to choose the next
+item without hiding blockers.
+
+Human-readable list output should include:
+
+```text
+ID                         STATE         PREDICATE          ENTITY/ SOURCE        BLOCKERS  UPDATED
+candidate-fact:...         needs_review  uses_chip          product:iphone-15-pro 2         2026-06-11
+```
+
+JSON list output:
+
+```json
+{
+  "items": [
+    {
+      "id": "candidate-fact:iphone-15-pro:uses-chip:extract-001",
+      "state": "needs_review",
+      "predicate": "uses_chip",
+      "source_id": "source:apple-tech-specs-iphone-15-pro",
+      "subject_candidate_id": "product:iphone-15-pro",
+      "blocking_issue_count": 0,
+      "non_blocking_issue_count": 1,
+      "updated_at": "2026-06-11T10:00:00Z"
+    }
+  ],
+  "next_cursor": null
+}
+```
+
+### Candidate Fact Detail Output
+
+`review fact show` must render a review packet with all context required for a
+safe approval decision.
+
+Required sections:
+
+- candidate summary
+- source summary
+- snapshot summary
+- proposed fact
+- evidence
+- entity resolution
+- issues
+- conflicts and overlaps
+- promotion preview
+- allowed next actions
+- review history
+
+JSON detail output:
+
+```json
+{
+  "candidate_fact": {
+    "id": "candidate-fact:iphone-15-pro:uses-chip:extract-001",
+    "state": "needs_review",
+    "predicate": "uses_chip",
+    "value": "A17 Pro",
+    "value_type": "entity",
+    "unit": null,
+    "raw_value": "A17 Pro chip"
+  },
+  "source": {
+    "id": "source:apple-tech-specs-iphone-15-pro",
+    "title": "iPhone 15 Pro - Technical Specifications",
+    "url": "https://support.apple.com/kb/SP903",
+    "trust_level": "official_primary",
+    "locale": "en-US",
+    "fetched_at": "2026-06-11T10:00:00Z"
+  },
+  "snapshot": {
+    "checksum": "sha256:...",
+    "parser_version": "tech-spec-parser@0.1.0"
+  },
+  "evidence": [
+    {
+      "id": "evidence:apple-tech-specs-iphone-15-pro:chip",
+      "locator": {
+        "type": "section",
+        "value": "Chip"
+      },
+      "quote": "A17 Pro chip",
+      "context": "Chip: A17 Pro chip"
+    }
+  ],
+  "entity_resolution": {
+    "subject": {
+      "candidate_id": "product:iphone-15-pro",
+      "score": 1.0,
+      "decision": "auto_resolved",
+      "signals": ["exact_canonical_name", "source_scope_match"],
+      "ambiguity_set": []
+    },
+    "object": {
+      "candidate_id": "chip:a17-pro",
+      "score": 0.95,
+      "decision": "auto_resolved",
+      "signals": ["exact_alias", "predicate_role_match"],
+      "ambiguity_set": []
+    }
+  },
+  "issues": [],
+  "conflicts": [],
+  "promotion_preview": {
+    "fact_id": "fact:iphone-15-pro:uses-chip",
+    "would_emit_outbox_events": ["fact.promoted"]
+  },
+  "allowed_actions": ["review fact approve", "review fact reject"],
+  "review_history": []
+}
+```
+
+### Entity Resolution Output
+
+`review entity show` must show the top candidate, score, threshold result,
+signals, and ambiguity set.
+
+Human-readable output must clearly mark whether the result is:
+
+- eligible for auto-resolution
+- needs human review
+- unresolved
+- blocked by predicate role mismatch
+
+### Mutation Output
+
+Mutating commands must print the decision record ID and final state.
+
+Example:
+
+```text
+review_decision: review-decision:2026-06-11:000123
+target: candidate-fact:iphone-15-pro:uses-chip:extract-001
+operation: approve
+previous_state: needs_review
+next_state: approved
+```
+
+JSON mutation output:
+
+```json
+{
+  "review_decision_id": "review-decision:2026-06-11:000123",
+  "target_id": "candidate-fact:iphone-15-pro:uses-chip:extract-001",
+  "operation": "approve",
+  "previous_state": "needs_review",
+  "next_state": "approved"
+}
+```
+
+### Dry-Run Output
+
+Any bulk-capable or promotion command must support `--dry-run`.
+
+Dry-run output must show:
+
+- target IDs
+- proposed state changes
+- blockers
+- outbox events that would be emitted
+- whether the command is safe to run without changes
+
+### Error Output
+
+Errors must be structured and actionable.
+
+JSON error output:
+
+```json
+{
+  "error": {
+    "code": "promotion_blocked",
+    "message": "Candidate fact has unresolved blocking issues.",
+    "target_id": "candidate-fact:iphone-15-pro:uses-chip:extract-001",
+    "blockers": [
+      {
+        "issue_id": "candidate-issue:missing-evidence",
+        "state": "open_blocking"
+      }
+    ]
+  }
+}
+```
+
+Human-readable errors must include the error code, target ID, blockers, and the
+next command a reviewer can run when one is obvious.
+
 ## Web UI Upgrade Triggers
 
 Build a web review UI when any of the following becomes true:
@@ -199,6 +398,7 @@ Costs:
 ## Follow-up Work
 
 - Add CLI command specs to implementation tasks.
+- Add CLI output fixtures for list, show, mutation, dry-run, and error cases.
 - Define review decision database schema.
 - Add tests for review operations and audit records.
 - Add sample review output for candidate facts and entity ambiguity.

@@ -256,9 +256,10 @@ Entity status 描述 identity 層級的生命週期，不描述銷售狀態。
 - `deprecated`
 - `merged`
 - `redirect`
-- `needs_review`
 
 Sales status、support status 與 availability 應該是 facts，因為它們會隨時間與 locale 變化。
+
+`needs_review` 不得作為 production entity status。Entity review state 應放在 candidate entity records、review queues 與 review decisions。Production entity 必須使用上述 lifecycle statuses 之一。
 
 ## Relationships
 

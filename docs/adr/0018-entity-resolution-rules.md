@@ -118,7 +118,7 @@ Auto-resolution is allowed only when all of these conditions are true:
 - score is `>= 0.95`
 - the top candidate is at least `0.10` higher than the next candidate
 - source scope does not conflict with the candidate
-- entity type matches the predicate role
+- entity type matches the predicate role defined in ADR-021
 - no existing fact or relationship creates a same-scope contradiction
 - the match method is not LLM-only
 
@@ -209,7 +209,7 @@ Promotion validation must verify:
 - subject resolution decision is `auto_resolved` or reviewer-approved
 - object resolution decision is `auto_resolved` or reviewer-approved when object
   is required
-- the resolved entity type matches the predicate vocabulary
+- the resolved entity type matches the predicate role registry defined in ADR-021
 - ambiguity has been resolved or explicitly accepted by review
 - review decisions are recorded for non-auto resolutions
 
@@ -230,7 +230,7 @@ Costs:
 
 ## Follow-up Work
 
-- Define predicate role expectations for subject and object entity types.
+- Use ADR-021 as the predicate role registry for subject and object entity type constraints.
 - Add entity resolution scoring tests.
 - Add fixtures for ambiguous names such as "iPad Pro" and "MacBook Pro".
 - Add review UI or CLI output for ambiguity sets and signals.

@@ -268,7 +268,7 @@ Examples:
 - `introduced_at`
 - `replaced_by`
 
-Predicate definitions should eventually move into a controlled vocabulary so ingestion, retrieval, and UI rendering use the same semantics.
+Predicate definitions should use the predicate role registry defined in ADR-021 so ingestion, retrieval, entity resolution, and UI rendering use the same semantics.
 
 ## Value Types
 
@@ -468,6 +468,6 @@ Rejected because many Apple facts are time-sensitive or locale-specific. The mod
 ## Follow-up Work
 
 - Define source trust levels in ADR-004.
-- Define predicate vocabulary and unit normalization.
+- Use ADR-021 for predicate role constraints and ADR-020 for unit normalization.
 - Define ingestion validation rules.
 - Define how facts are rendered in wiki pages and LLM answers.

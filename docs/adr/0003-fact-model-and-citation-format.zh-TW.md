@@ -258,7 +258,7 @@ Predicates 應是 normalized snake_case verbs 或 verb phrases。
 - `introduced_at`
 - `replaced_by`
 
-Predicate definitions 未來應移入 controlled vocabulary，讓 ingestion、retrieval 與 UI rendering 使用相同語意。
+Predicate definitions 應使用 ADR-021 定義的 predicate role registry，讓 ingestion、retrieval、entity resolution 與 UI rendering 使用相同語意。
 
 ## Value Types
 
@@ -456,6 +456,6 @@ Facts 應透過 metadata 版本化，而不是破壞性取代。
 ## 後續工作
 
 - 在 ADR-004 定義 source trust levels。
-- 定義 predicate vocabulary 與 unit normalization。
+- 使用 ADR-021 定義 predicate role constraints，並使用 ADR-020 定義 unit normalization。
 - 定義 ingestion validation rules。
 - 定義 facts 如何呈現在 wiki pages 與 LLM answers 中。

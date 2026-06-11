@@ -46,6 +46,8 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](0019-review-interface-and-operations.zh-TW.md)
 - [ADR-020: Unit Registry and Normalization](0020-unit-registry-and-normalization.md)
   - [繁體中文](0020-unit-registry-and-normalization.zh-TW.md)
+- [ADR-021: Predicate Role and Entity Type Constraints](0021-predicate-role-and-entity-type-constraints.md)
+  - [繁體中文](0021-predicate-role-and-entity-type-constraints.zh-TW.md)
 
 ## ADR Set
 
