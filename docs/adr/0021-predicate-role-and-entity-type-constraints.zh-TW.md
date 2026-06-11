@@ -39,6 +39,8 @@ Entity IDs 可能有效，但 predicate role 是錯的。
 - predicate 是否 temporal
 - locale 或 region 是 required、optional 或 prohibited
 - derived facts 是否可使用該 predicate
+- predicate status
+- predicate 是 legacy alias 時的 preferred predicate
 
 Registry 應是 versioned data，而不是散落在 parser logic 中。
 
@@ -51,6 +53,16 @@ Registry 應是 versioned data，而不是散落在 parser logic 中。
 - `prohibited`：使用此 predicate 的 production facts 不得包含 locale 或 region，因為 claim 依定義是 global。
 
 除非同步更新本 ADR 與 promotion validation，否則不得引入額外 locale policy enum values。
+
+## Predicate Status Values
+
+允許的 predicate `status` values：
+
+- `active`：允許用於新的 candidate 與 production facts。
+- `legacy_alias`：為 backward compatibility 接受，但新的 candidate facts 應優先使用 `preferred_predicate`。
+- `deprecated`：不允許用於新的 production facts，除非作為 historical data 並經 review 明確 approve。
+
+`status: legacy_alias` 的 predicates 必須定義 `preferred_predicate`。
 
 ## Predicate Definition Format
 
@@ -70,6 +82,8 @@ unit_dimensions: []
 temporal: false
 locale_policy: optional
 derived_allowed: false
+status: active
+preferred_predicate: null
 ```
 
 ## Initial Predicate Role Registry
@@ -267,8 +281,11 @@ Promotion validation 必須在以下情況 reject candidate fact：
 - unit dimension 不符合 predicate 允許的 unit dimensions
 - locale 或 region policy 違反
 - non-derived fact 使用 derived-only predicate
+- predicate status 是 `deprecated`，且該 fact 未被明確 approve 為 historical
 
 Candidate intake 可以允許 proposed predicates，但 proposed predicates 必須留在 review，直到 predicate registry 更新，或 fact 改寫成 existing predicate。
+
+使用 `status: legacy_alias` predicate 的 candidate facts 應產生 non-blocking issue，建議 migration 到 `preferred_predicate`。只有在 candidate 改寫成 preferred predicate，或該 non-blocking issue 被 review 明確接受時，才可 promotion。
 
 ## Entity Resolution Interaction
 

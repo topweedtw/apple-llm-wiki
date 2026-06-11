@@ -1,16 +1,16 @@
 # Apple LLM Wiki
 
-Architecture Decision Records for designing an LLM-native knowledge base focused on Apple products.
+本專案是一組 Architecture Decision Records，用來設計以 Apple 產品知識為核心、適合 LLM 使用的知識庫。
 
-Traditional Chinese: [README.zh-TW.md](README.zh-TW.md)
+English: [README.md](README.md)
 
-## ADRs
+## ADR
 
-All ADRs live in the [`docs/adr/`](docs/adr/) directory.
+所有 ADR 都放在 [`docs/adr/`](docs/adr/) 目錄。
 
-Each ADR should have an English version and a Traditional Chinese version.
+每份 ADR 都應該同時有英文版與繁體中文版。
 
-## Architecture and Implementation
+## 架構與實作
 
 - [Architecture Flow](docs/architecture-flow.md)
   - [繁體中文](docs/architecture-flow.zh-TW.md)
@@ -60,6 +60,6 @@ Each ADR should have an English version and a Traditional Chinese version.
 - [ADR-021: Predicate Role and Entity Type Constraints](docs/adr/0021-predicate-role-and-entity-type-constraints.md)
   - [繁體中文](docs/adr/0021-predicate-role-and-entity-type-constraints.zh-TW.md)
 
-## ADR Set
+## ADR 集合
 
-Future ADRs should continue the same bilingual structure.
+未來新增的 ADR 應該延續相同的雙語結構。

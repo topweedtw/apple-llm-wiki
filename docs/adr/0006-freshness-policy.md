@@ -77,6 +77,40 @@ Default review intervals:
 
 TTL expiration should change `current` to `possibly_stale`, not delete the fact.
 
+## Predicate TTL Mapping
+
+Freshness jobs should use this default predicate-to-TTL mapping. `none` means no
+scheduled TTL expiration after the fact has been reviewed, though source
+checksum changes or conflicts may still trigger review.
+
+| Predicate | Default TTL | Notes |
+| --- | ---: | --- |
+| `has_price` | 7 days | Region-specific money facts must include locale or region. |
+| `has_sales_status` | 14 days | Current availability and sales status are time-sensitive. |
+| `has_trade_in_value` | 7 days | Add to predicate registry before production use. |
+| `has_support_status` | 30 days | Includes support, repair, vintage, and obsolete status. |
+| `supports_os` | 30 days | Current OS support can change with OS releases. |
+| `compatible_with` | 90 days | Accessory, OS, and feature compatibility. |
+| `requires` | 90 days | Requirements may change with OS or support updates. |
+| `has_display_size` | 365 days | Stable spec after launch review. |
+| `has_weight` | 365 days | Stable spec after launch review. |
+| `uses_chip` | none | Historical hardware relation after review. |
+| `has_feature` | none | Historical feature relation after review, unless source conflict appears. |
+| `introduced_at` | none | Event relation after review. |
+| `has_announcement_date` | none | Stable historical date after review. |
+| `has_release_date` | none | Stable historical date after review. |
+| `belongs_to_line` | none | Identity relationship after review. |
+| `belongs_to_generation` | none | Identity relationship after review. |
+| `has_variant` | none | Identity relationship after review. |
+| `variant_of` | none | Identity relationship after review. |
+| `replaced_by` | none | Historical lifecycle relation after review. |
+| `replaces` | none | Historical lifecycle relation after review. |
+| `runs_os` | none | Launch or bundled OS relation after review. |
+| `first_generation_with_feature` | none | Derived fact; regenerate when dependencies change. |
+
+Predicates not listed here must define a TTL policy before production use, or
+remain in review.
+
 ## Review Triggers
 
 Recheck freshness when:

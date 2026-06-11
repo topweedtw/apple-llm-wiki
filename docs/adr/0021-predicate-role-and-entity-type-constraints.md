@@ -39,6 +39,8 @@ Each predicate definition should include:
 - whether the predicate is temporal
 - whether locale or region is required, optional, or prohibited
 - whether derived facts may use the predicate
+- predicate status
+- preferred predicate when the predicate is a legacy alias
 
 The registry should be versioned data, not scattered parser logic.
 
@@ -51,6 +53,16 @@ Allowed `locale_policy` values:
 - `prohibited`: production facts using this predicate must not include locale or region because the claim is global by definition.
 
 Do not introduce additional locale policy enum values without updating this ADR and promotion validation.
+
+## Predicate Status Values
+
+Allowed predicate `status` values:
+
+- `active`: allowed for new candidate and production facts.
+- `legacy_alias`: accepted for backward compatibility, but new candidate facts should prefer `preferred_predicate`.
+- `deprecated`: not allowed for new production facts except as historical data explicitly approved by review.
+
+Predicates with `status: legacy_alias` must define `preferred_predicate`.
 
 ## Predicate Definition Format
 
@@ -70,6 +82,8 @@ unit_dimensions: []
 temporal: false
 locale_policy: optional
 derived_allowed: false
+status: active
+preferred_predicate: null
 ```
 
 ## Initial Predicate Role Registry
@@ -271,8 +285,14 @@ Promotion validation must reject a candidate fact when:
 - unit dimension does not match the predicate's allowed unit dimensions
 - locale or region policy is violated
 - a non-derived fact uses a derived-only predicate
+- predicate status is `deprecated` and the fact is not explicitly approved as historical
 
 Candidate intake may allow proposed predicates, but proposed predicates must remain in review until the predicate registry is updated or the fact is rewritten with an existing predicate.
+
+Candidate facts using a predicate with `status: legacy_alias` should emit a
+non-blocking issue suggesting migration to `preferred_predicate`. Promotion may
+proceed only when the candidate is rewritten to the preferred predicate or the
+non-blocking issue is explicitly accepted by review.
 
 ## Entity Resolution Interaction
 

@@ -175,7 +175,7 @@ Rejected because it is weak for exploratory and natural-language questions.
 
 ## Follow-up Work
 
-- Define entity resolution scoring.
-- Define ranking weights.
+- Entity resolution scoring is defined by ADR-018 and constrained by ADR-021.
+- Define retrieval ranking weights beyond entity resolution scoring.
 - Define retrieval evaluation sets.
 - Define context packing limits for LLM answers.

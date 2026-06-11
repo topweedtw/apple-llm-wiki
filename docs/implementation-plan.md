@@ -413,7 +413,14 @@ Answer tests:
 
 ## Open Decisions
 
-- Whether page rendering should be implemented before semantic/vector retrieval.
+- None.
+
+Resolved by implementation sequencing:
+
+- Page rendering will be implemented in Phase 8, after derived view consistency
+  is proven in Phase 6.
+- Semantic and vector retrieval will be added incrementally after Phase 6, once
+  the first index and projection infrastructure is in place.
 
 Resolved by ADR-019:
 

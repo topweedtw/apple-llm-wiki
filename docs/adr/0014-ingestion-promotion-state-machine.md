@@ -133,6 +133,7 @@ Examples of blocking issues:
 - missing evidence
 - unresolved subject entity
 - unresolved object entity when required
+- missing value, such as an unknown historical price recorded as `missing_value`
 - invalid predicate
 - schema mismatch
 - invalid locale or time qualifier

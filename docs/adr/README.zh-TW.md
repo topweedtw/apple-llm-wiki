@@ -1,12 +1,12 @@
-# ADR Index
+# ADR 索引
 
-This directory contains Architecture Decision Records for the Apple LLM Wiki project.
+這個目錄包含 Apple LLM Wiki 專案的 Architecture Decision Records。
 
-Traditional Chinese: [README.zh-TW.md](README.zh-TW.md)
+English: [README.md](README.md)
 
 ## Accepted / Proposed
 
-Each ADR should have an English version and a Traditional Chinese version.
+每份 ADR 都應該同時有英文版與繁體中文版。
 
 - [ADR-001: LLM Wiki Apple Product Knowledge Base](0001-llm-wiki-apple-product-knowledge-base.md)
   - [繁體中文](0001-llm-wiki-apple-product-knowledge-base.zh-TW.md)
@@ -51,6 +51,6 @@ Each ADR should have an English version and a Traditional Chinese version.
 - [ADR-021: Predicate Role and Entity Type Constraints](0021-predicate-role-and-entity-type-constraints.md)
   - [繁體中文](0021-predicate-role-and-entity-type-constraints.zh-TW.md)
 
-## ADR Set
+## ADR 集合
 
-Future ADRs should continue the same bilingual structure.
+未來新增的 ADR 應該延續相同的雙語結構。
