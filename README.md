@@ -1,14 +1,72 @@
 # Apple LLM Wiki
 
-Architecture Decision Records for designing an LLM-native knowledge base focused on Apple products.
+An LLM-native, source-grounded knowledge base focused on Apple products. Every
+answerable claim is a source-backed fact with evidence, so LLM answers can cite
+exact sources instead of relying on unverified prose.
 
 Traditional Chinese: [README.zh-TW.md](README.zh-TW.md)
 
-## ADRs
+## Status
 
-All ADRs live in the [`docs/adr/`](docs/adr/) directory.
+Phase 0 (project skeleton) is complete. The codebase is being built one correct
+vertical slice at a time, from an Apple specification URL to a cited answer. See
+the [Implementation Plan](docs/implementation-plan.md) for the full phase
+roadmap.
 
-Each ADR should have an English version and a Traditional Chinese version.
+## Tech Stack
+
+Selected in [ADR-017](docs/adr/0017-runtime-and-framework-selection.md):
+
+- Runtime: TypeScript on Node.js 26.x
+- Package manager: pnpm
+- Web API: Fastify
+- CLI: Commander
+- Validation: Zod
+- Database: Postgres 17, accessed with Kysely + `pg`
+- Migrations: checked-in SQL run by a thin TypeScript runner
+- Tests: Vitest
+- Lint/format: Biome
+- HTML parsing (Phase 2+): Cheerio, with Playwright fallback
+
+## Getting Started
+
+Prerequisites: Node.js 26.x, pnpm, and Docker (for local Postgres).
+
+```bash
+pnpm install            # install dependencies
+cp .env.example .env    # local configuration
+pnpm db:up              # start Postgres 17 in Docker
+pnpm db:migrate         # apply SQL migrations
+pnpm test               # run the test suite
+```
+
+Common commands:
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` | run the Fastify API with reload (`GET /health`) |
+| `pnpm cli ping` | run the Commander CLI entrypoint |
+| `pnpm typecheck` | TypeScript type checking |
+| `pnpm lint` | Biome lint and format check |
+| `pnpm test` | run Vitest once |
+| `pnpm db:migrate` | apply pending SQL migrations |
+
+## Project Structure
+
+```text
+src/
+  api/         Fastify routes and HTTP schemas
+  cli/         Commander command entrypoints
+  config/      environment loading and validation
+  db/          Kysely client, migration runner, SQL migrations
+  domain/      IDs, enums, errors, and state-machine types
+  ingestion/   source fetch, snapshot, parse, candidate writers (Phase 2)
+  review/      review decisions and promotion rules (Phase 3)
+  retrieval/   entity match, fact lookup, answer context (Phase 4)
+  indexing/    outbox processing, projections, rebuilds (Phase 6)
+test/          Vitest tests and fixtures
+docs/          ADRs, architecture flow, and implementation plan
+```
 
 ## Architecture and Implementation
 

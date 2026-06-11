@@ -1,14 +1,71 @@
 # Apple LLM Wiki
 
-本專案是一組 Architecture Decision Records，用來設計以 Apple 產品知識為核心、適合 LLM 使用的知識庫。
+本專案是一個以 Apple 產品知識為核心、source-grounded 且適合 LLM 使用的知識庫。
+每個可回答的主張都是有 evidence 支持的 source-backed fact，讓 LLM 回答能引用精確
+來源，而不是依賴未經驗證的 prose。
 
 English: [README.md](README.md)
 
-## ADR
+## 現況
 
-所有 ADR 都放在 [`docs/adr/`](docs/adr/) 目錄。
+Phase 0（專案骨架）已完成。程式碼以「一次做好一條正確的垂直切片」的方式推進，從
+Apple 規格頁 URL 一路到帶引用的答案。完整階段規劃見
+[Implementation Plan](docs/implementation-plan.md)。
 
-每份 ADR 都應該同時有英文版與繁體中文版。
+## 技術棧
+
+選型見 [ADR-017](docs/adr/0017-runtime-and-framework-selection.md)：
+
+- Runtime：TypeScript on Node.js 26.x
+- 套件管理：pnpm
+- Web API：Fastify
+- CLI：Commander
+- 驗證：Zod
+- 資料庫：Postgres 17，以 Kysely + `pg` 存取
+- Migration：checked-in SQL，由輕量 TypeScript runner 執行
+- 測試：Vitest
+- Lint/format：Biome
+- HTML 解析（Phase 2 起）：Cheerio，必要時 fallback 到 Playwright
+
+## 快速開始
+
+前置需求：Node.js 26.x、pnpm，以及 Docker（本機 Postgres 用）。
+
+```bash
+pnpm install            # 安裝相依套件
+cp .env.example .env    # 本機設定
+pnpm db:up              # 在 Docker 啟動 Postgres 17
+pnpm db:migrate         # 套用 SQL migrations
+pnpm test               # 執行測試
+```
+
+常用指令：
+
+| 指令 | 用途 |
+| --- | --- |
+| `pnpm dev` | 啟動 Fastify API 並 reload（`GET /health`） |
+| `pnpm cli ping` | 執行 Commander CLI 進入點 |
+| `pnpm typecheck` | TypeScript 型別檢查 |
+| `pnpm lint` | Biome lint 與格式檢查 |
+| `pnpm test` | 執行一次 Vitest |
+| `pnpm db:migrate` | 套用待處理的 SQL migrations |
+
+## 專案結構
+
+```text
+src/
+  api/         Fastify routes 與 HTTP schemas
+  cli/         Commander command 進入點
+  config/      環境變數載入與驗證
+  db/          Kysely client、migration runner、SQL migrations
+  domain/      IDs、enums、errors 與 state-machine types
+  ingestion/   source fetch、snapshot、parse、candidate writers（Phase 2）
+  review/      review decisions 與 promotion rules（Phase 3）
+  retrieval/   entity match、fact lookup、answer context（Phase 4）
+  indexing/    outbox processing、projections、rebuilds（Phase 6）
+test/          Vitest 測試與 fixtures
+docs/          ADR、architecture flow 與 implementation plan
+```
 
 ## 架構與實作
 
