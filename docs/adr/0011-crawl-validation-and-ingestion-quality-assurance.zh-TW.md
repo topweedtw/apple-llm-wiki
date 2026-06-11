@@ -131,7 +131,9 @@ Facts 必須通過 schema validation：
 - required fields exist
 - predicate is allowed
 - value type matches predicate
+- value 已依 predicate normalized
 - unit is normalized
+- 來源文字透過 evidence、raw_value 或 snapshot context 保留
 - locale is valid
 - freshness is set
 - confidence is set
@@ -171,7 +173,7 @@ Publication 前的必要 gates：
 4. evidence validation
 5. candidate issue validation
 6. entity resolution validation
-7. fact schema validation
+7. fact schema validation，包含 normalized values、normalized units 與 raw source wording preservation
 8. freshness assignment
 9. risky 或 ambiguous data 需要 review approval
 

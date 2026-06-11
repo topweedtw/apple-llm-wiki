@@ -43,6 +43,8 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](docs/adr/0014-ingestion-promotion-state-machine.zh-TW.md)
 - [ADR-015: Index Consistency and Rebuild Policy](docs/adr/0015-index-consistency-and-rebuild-policy.md)
   - [繁體中文](docs/adr/0015-index-consistency-and-rebuild-policy.zh-TW.md)
+- [ADR-016: Fact Value Normalization Policy](docs/adr/0016-fact-value-normalization-policy.md)
+  - [繁體中文](docs/adr/0016-fact-value-normalization-policy.zh-TW.md)
 
 ## ADR Set
 

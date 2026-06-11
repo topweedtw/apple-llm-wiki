@@ -108,6 +108,7 @@ object: chip:a17-pro
 value: A17 Pro
 value_type: entity
 unit: null
+raw_value: A17 Pro chip
 qualifiers: {}
 valid_from: 2023-09-12
 valid_to: null
@@ -142,6 +143,7 @@ Optional fields:
 
 - `object`
 - `unit`
+- `raw_value`
 - `qualifiers`
 - `valid_from`
 - `valid_to`
@@ -168,6 +170,8 @@ predicate: uses_chip
 object: chip:a17-pro
 value: A17 Pro
 value_type: entity
+unit: null
+raw_value: A17 Pro chip
 ```
 
 ### ScalarFact
@@ -184,6 +188,7 @@ predicate: has_display_size
 value: 6.1
 value_type: number
 unit: inch
+raw_value: 6.1-inch display
 ```
 
 ### TemporalFact
@@ -281,7 +286,9 @@ Allowed `value_type` values:
 - `range`
 - `money`
 
-Values should be normalized when possible. Preserve source wording in evidence, not in the normalized value.
+`value` should be normalized when possible and should be queryable according to `value_type`. Source wording should be preserved in `evidence.quote`; optional `raw_value` may store a concise extracted phrase for review, diffing, or display, but it is not a replacement for evidence.
+
+Do not introduce a separate `normalized_value` field unless a later ADR defines a migration and use case. For entity relation facts, `object` is the normalized entity reference. For scalar facts, `value` plus `unit` is the normalized representation.
 
 ## Evidence Model
 

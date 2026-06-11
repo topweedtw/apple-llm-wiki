@@ -158,6 +158,8 @@ Candidate intake checks：
 - predicate is allowed or proposed
 - value type matches predicate
 - unit is normalized，或已記錄 `unnormalized_unit` issue
+- normalized `value` 存在，或已記錄 missing-normalization issue
+- 來源文字透過 evidence、`raw_value` 或 source snapshot context 保留
 - source refs point to existing evidence，或已記錄 `missing_evidence` issue
 - subject and object entities exist，或已記錄 unresolved entity issues
 - locale and time qualifiers are valid
@@ -172,6 +174,8 @@ Promotion checks：
 - predicate is allowed
 - value type matches predicate
 - unit is normalized
+- `value` 已依 predicate 與 `value_type` normalized
+- `raw_value` 即使存在，也不能取代 evidence
 - source refs point to existing evidence
 - subject and object entities exist
 - locale and time qualifiers are valid

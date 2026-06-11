@@ -108,6 +108,7 @@ object: chip:a17-pro
 value: A17 Pro
 value_type: entity
 unit: null
+raw_value: A17 Pro chip
 qualifiers: {}
 valid_from: 2023-09-12
 valid_to: null
@@ -142,6 +143,7 @@ Production fact 必要欄位：
 
 - `object`
 - `unit`
+- `raw_value`
 - `qualifiers`
 - `valid_from`
 - `valid_to`
@@ -166,6 +168,8 @@ predicate: uses_chip
 object: chip:a17-pro
 value: A17 Pro
 value_type: entity
+unit: null
+raw_value: A17 Pro chip
 ```
 
 ### ScalarFact
@@ -180,6 +184,7 @@ predicate: has_display_size
 value: 6.1
 value_type: number
 unit: inch
+raw_value: 6.1-inch display
 ```
 
 ### TemporalFact
@@ -271,7 +276,9 @@ Predicate definitions 未來應移入 controlled vocabulary，讓 ingestion、re
 - `range`
 - `money`
 
-Values 應盡可能 normalized。來源原文應保留在 evidence，而不是 normalized value。
+`value` 應盡可能 normalized，並依 `value_type` 成為可查詢資料。來源文字應保留在 `evidence.quote`；選用的 `raw_value` 可保存簡短 extracted phrase，用於 review、diffing 或 display，但不能取代 evidence。
+
+除非後續 ADR 定義 migration 與 use case，否則不要新增獨立的 `normalized_value` 欄位。對 entity relation facts，`object` 是 normalized entity reference。對 scalar facts，`value` 加 `unit` 是 normalized representation。
 
 ## Evidence Model
 

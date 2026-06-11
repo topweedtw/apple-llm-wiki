@@ -131,7 +131,9 @@ Facts must pass schema validation:
 - required fields exist
 - predicate is allowed
 - value type matches predicate
+- value is normalized for the predicate
 - unit is normalized
+- raw source wording is preserved through evidence, raw_value, or snapshot context
 - locale is valid
 - freshness is set
 - confidence is set
@@ -171,7 +173,7 @@ Required gates before publication:
 4. evidence validation
 5. candidate issue validation
 6. entity resolution validation
-7. fact schema validation
+7. fact schema validation, including normalized values, normalized units, and raw source wording preservation
 8. freshness assignment
 9. review approval for risky or ambiguous data
 
