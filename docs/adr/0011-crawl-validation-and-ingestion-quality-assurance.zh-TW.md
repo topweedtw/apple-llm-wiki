@@ -132,7 +132,7 @@ Facts 必須通過 schema validation：
 - predicate is allowed
 - value type matches predicate
 - value 已依 predicate normalized
-- unit is normalized
+- unit 已依 unit registry normalized
 - 來源文字透過 evidence、raw_value 或 snapshot context 保留
 - locale is valid
 - freshness is set

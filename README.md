@@ -45,6 +45,14 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](docs/adr/0015-index-consistency-and-rebuild-policy.zh-TW.md)
 - [ADR-016: Fact Value Normalization Policy](docs/adr/0016-fact-value-normalization-policy.md)
   - [繁體中文](docs/adr/0016-fact-value-normalization-policy.zh-TW.md)
+- [ADR-017: Runtime and Framework Selection](docs/adr/0017-runtime-and-framework-selection.md)
+  - [繁體中文](docs/adr/0017-runtime-and-framework-selection.zh-TW.md)
+- [ADR-018: Entity Resolution Rules](docs/adr/0018-entity-resolution-rules.md)
+  - [繁體中文](docs/adr/0018-entity-resolution-rules.zh-TW.md)
+- [ADR-019: Review Interface and Operations](docs/adr/0019-review-interface-and-operations.md)
+  - [繁體中文](docs/adr/0019-review-interface-and-operations.zh-TW.md)
+- [ADR-020: Unit Registry and Normalization](docs/adr/0020-unit-registry-and-normalization.md)
+  - [繁體中文](docs/adr/0020-unit-registry-and-normalization.zh-TW.md)
 
 ## ADR Set
 

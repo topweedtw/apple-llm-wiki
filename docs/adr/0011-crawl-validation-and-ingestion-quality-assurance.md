@@ -132,7 +132,7 @@ Facts must pass schema validation:
 - predicate is allowed
 - value type matches predicate
 - value is normalized for the predicate
-- unit is normalized
+- unit is normalized against the unit registry
 - raw source wording is preserved through evidence, raw_value, or snapshot context
 - locale is valid
 - freshness is set

@@ -276,7 +276,7 @@ Predicate definitions 未來應移入 controlled vocabulary，讓 ingestion、re
 - `range`
 - `money`
 
-`value` 應盡可能 normalized，並依 `value_type` 成為可查詢資料。來源文字應保留在 `evidence.quote`；選用的 `raw_value` 可保存簡短 extracted phrase，用於 review、diffing 或 display，但不能取代 evidence。
+`value` 應盡可能 normalized，並依 `value_type` 成為可查詢資料。Units 必須使用 ADR-020 定義的 unit registry。來源文字應保留在 `evidence.quote`；選用的 `raw_value` 可保存簡短 extracted phrase，用於 review、diffing 或 display，但不能取代 evidence。
 
 除非後續 ADR 定義 migration 與 use case，否則不要新增獨立的 `normalized_value` 欄位。對 entity relation facts，`object` 是 normalized entity reference。對 scalar facts，`value` 加 `unit` 是 normalized representation。
 

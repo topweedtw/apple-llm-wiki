@@ -22,7 +22,7 @@ The production fact model should therefore use:
 
 - `value`: normalized value used for query, comparison, rendering, and answer context
 - `value_type`: type of `value`
-- `unit`: normalized unit when the fact is numeric, money, range, or otherwise unit-bearing
+- `unit`: normalized unit from the unit registry when the fact is numeric, money, range, or otherwise unit-bearing
 - `object`: canonical entity ID for entity relation facts when the value points to another entity
 - `raw_value`: optional concise source wording or extracted phrase, never canonical by itself
 - `evidence.quote`: authoritative source quote or source span that supports the fact
@@ -83,7 +83,7 @@ Candidate intake may accept:
 - unresolved units when an `unnormalized_unit` issue is recorded
 - unresolved entity values when entity resolution issues are recorded
 
-Promotion to production requires normalized `value`, valid `value_type`, normalized `unit` when applicable, and source-backed evidence.
+Promotion to production requires normalized `value`, valid `value_type`, a registry-backed normalized `unit` when applicable, and source-backed evidence.
 
 ## Evidence Relationship
 
@@ -97,7 +97,7 @@ Production fact validation must ensure:
 
 - `value` exists and is normalized for the predicate
 - `value_type` matches the predicate
-- `unit` is normalized when required
+- `unit` is a valid active registry unit when required
 - `object` exists when the predicate requires an entity target
 - source refs point to evidence records
 - `raw_value`, when present, does not replace evidence
@@ -105,7 +105,7 @@ Production fact validation must ensure:
 Candidate validation must ensure:
 
 - missing normalized values are tracked with issues
-- unnormalized units are tracked with issues
+- unnormalized units are tracked with issues until mapped to the unit registry
 - source wording is preserved through `raw_value`, evidence, or source snapshot context
 
 ## Consequences
@@ -128,4 +128,5 @@ Costs:
 - Update ADR-003 examples and optional fields to include `raw_value`.
 - Update ADR-008 validation language for raw and normalized value handling.
 - Update ADR-011 fact schema validation language.
+- Use ADR-020 as the unit registry and validation source.
 - Revisit whether `display_value` is needed after the first ingestion implementation.

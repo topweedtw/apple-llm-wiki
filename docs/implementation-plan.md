@@ -61,6 +61,7 @@ Initial tables:
 - `fact_supersession`
 - `review_decisions`
 - `publication_events`
+- `unit_registry`
 - `index_outbox`
 
 Required constraints:
@@ -136,6 +137,7 @@ Services:
 - `FactPromotionService`
 - `PublicationAuditService`
 - `IndexOutboxWriter`
+- `ReviewCommandService`
 
 Promotion flow:
 
@@ -181,6 +183,7 @@ Services:
 - `EvidenceHydrationService`
 - `FreshnessPolicyService`
 - `AnswerContextBuilder`
+- `EntityResolutionService`
 
 Exit criteria:
 
@@ -387,7 +390,7 @@ Answer tests:
 
 ## Initial Backlog
 
-1. Choose runtime and web framework.
+1. Scaffold TypeScript/Node.js project structure.
 2. Add database migration tooling.
 3. Create canonical schema migration.
 4. Add enum definitions for freshness, confidence, candidate states, issue states,
@@ -395,18 +398,51 @@ Answer tests:
 5. Implement source registration.
 6. Add fixture snapshot for one Apple technical specification page.
 7. Implement deterministic tech spec parser.
-8. Implement candidate intake validation.
-9. Implement review decision records.
-10. Implement fact promotion service.
-11. Implement index outbox writer.
-12. Implement exact entity and fact lookup.
-13. Implement cited answer endpoint.
-14. Add rebuild and drift-check commands.
+8. Implement entity resolution scoring.
+9. Implement unit registry and unit normalization.
+10. Implement candidate intake validation.
+11. Implement review decision records.
+12. Implement CLI review commands.
+13. Implement fact promotion service.
+14. Implement index outbox writer.
+15. Implement exact entity and fact lookup.
+16. Implement cited answer endpoint.
+17. Add rebuild and drift-check commands.
 
 ## Open Decisions
 
-- Runtime: TypeScript/Node.js or Python.
-- API shape: REST only or REST plus CLI commands.
-- Database migration tool.
-- Review UI timing: CLI/admin command first, web UI later.
 - Whether page rendering should be implemented before semantic/vector retrieval.
+
+Resolved by ADR-019:
+
+- Review starts with CLI/admin commands.
+- CLI must support source review, candidate fact review, issue resolution,
+  entity resolution approval, promotion blockers, and review history.
+- Web UI is introduced when review queue age, volume, multi-reviewer needs,
+  visual comparison needs, non-technical reviewer participation, or review
+  error rates justify it.
+
+Resolved by ADR-020:
+
+- Production fact units must be `null` or active canonical unit IDs from the unit registry.
+- `inch` is canonical for inch values; `in`, `inches`, and `"` are aliases.
+- `GB` and `TB` are decimal storage units; `GiB` and `TiB` are binary units and must not be silently converted.
+- Promotion validation checks units against the registry.
+
+Resolved by ADR-018:
+
+- Entity resolution uses deterministic scoring.
+- Auto-resolution requires score `>= 0.95`, a `0.10` margin over the next
+  candidate, matching predicate role, and no source-scope conflict.
+- Ambiguous names such as "iPad Pro" remain in review unless source context
+  disambiguates the product line, generation, product, or variant.
+
+Resolved by ADR-017:
+
+- Runtime: TypeScript on Node.js Active LTS.
+- Package manager: pnpm.
+- Web API: Fastify REST endpoints.
+- CLI: Commander commands.
+- Database access: Kysely with `pg`.
+- Migration approach: checked-in SQL migration files run by a thin TypeScript
+  migration runner.

@@ -286,7 +286,7 @@ Allowed `value_type` values:
 - `range`
 - `money`
 
-`value` should be normalized when possible and should be queryable according to `value_type`. Source wording should be preserved in `evidence.quote`; optional `raw_value` may store a concise extracted phrase for review, diffing, or display, but it is not a replacement for evidence.
+`value` should be normalized when possible and should be queryable according to `value_type`. Units must use the unit registry defined in ADR-020. Source wording should be preserved in `evidence.quote`; optional `raw_value` may store a concise extracted phrase for review, diffing, or display, but it is not a replacement for evidence.
 
 Do not introduce a separate `normalized_value` field unless a later ADR defines a migration and use case. For entity relation facts, `object` is the normalized entity reference. For scalar facts, `value` plus `unit` is the normalized representation.
 

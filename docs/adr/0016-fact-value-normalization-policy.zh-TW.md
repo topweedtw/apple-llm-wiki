@@ -22,7 +22,7 @@ Production fact model 應使用：
 
 - `value`：用於 query、comparison、rendering 與 answer context 的 normalized value
 - `value_type`：`value` 的型別
-- `unit`：當 fact 是 numeric、money、range 或其他帶單位資料時使用的 normalized unit
+- `unit`：當 fact 是 numeric、money、range 或其他帶單位資料時，使用來自 unit registry 的 normalized unit
 - `object`：entity relation facts 指向其他 entity 時使用的 canonical entity ID
 - `raw_value`：選用的簡短來源文字或 extracted phrase，本身不可作為 canonical evidence
 - `evidence.quote`：支持該 fact 的 authoritative source quote 或 source span
@@ -83,7 +83,7 @@ Candidate intake 可接受：
 - unresolved units，前提是已記錄 `unnormalized_unit` issue
 - unresolved entity values，前提是已記錄 entity resolution issues
 
-Promotion to production 要求 normalized `value`、有效的 `value_type`、適用時 normalized `unit`，以及 source-backed evidence。
+Promotion to production 要求 normalized `value`、有效的 `value_type`、適用時 registry-backed normalized `unit`，以及 source-backed evidence。
 
 ## Evidence Relationship
 
@@ -97,7 +97,7 @@ Production fact validation 必須確認：
 
 - `value` 存在，且已依 predicate normalization
 - `value_type` 符合 predicate
-- 需要 unit 時，`unit` 已 normalized
+- 需要 unit 時，`unit` 是 valid active registry unit
 - predicate 需要 entity target 時，`object` 存在
 - source refs 指向 evidence records
 - `raw_value` 即使存在，也不能取代 evidence
@@ -105,7 +105,7 @@ Production fact validation 必須確認：
 Candidate validation 必須確認：
 
 - missing normalized values 有 issue tracking
-- unnormalized units 有 issue tracking
+- unnormalized units 必須有 issue tracking，直到 map 到 unit registry
 - source wording 透過 `raw_value`、evidence 或 source snapshot context 保留
 
 ## 影響
@@ -128,4 +128,5 @@ Costs：
 - 更新 ADR-003 examples 與 optional fields，加入 `raw_value`。
 - 更新 ADR-008 validation language，說明 raw 與 normalized value handling。
 - 更新 ADR-011 fact schema validation language。
+- 使用 ADR-020 作為 unit registry 與 validation source。
 - 第一版 ingestion implementation 後，再評估是否需要 `display_value`。

@@ -157,7 +157,7 @@ Candidate intake checks：
 - required fields exist
 - predicate is allowed or proposed
 - value type matches predicate
-- unit is normalized，或已記錄 `unnormalized_unit` issue
+- unit 已依 unit registry normalized，或已記錄 `unnormalized_unit` issue
 - normalized `value` 存在，或已記錄 missing-normalization issue
 - 來源文字透過 evidence、`raw_value` 或 source snapshot context 保留
 - source refs point to existing evidence，或已記錄 `missing_evidence` issue
@@ -173,7 +173,7 @@ Promotion checks：
 - all production fact required fields exist
 - predicate is allowed
 - value type matches predicate
-- unit is normalized
+- 需要 unit 時，unit 是 active registry unit
 - `value` 已依 predicate 與 `value_type` normalized
 - `raw_value` 即使存在，也不能取代 evidence
 - source refs point to existing evidence
