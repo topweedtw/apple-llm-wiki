@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Date
 
@@ -106,6 +106,25 @@ Reasons are required for:
 - approving entity resolution below the auto-resolution threshold
 - overriding the top entity resolution candidate
 - promoting a candidate with any accepted non-blocking issue
+
+## Reviewer Identity
+
+Every review decision record requires a reviewer identity. For the CLI-first
+phase, identity is supplied by the operator:
+
+- mutating review commands resolve the reviewer ID from a `--reviewer <id>`
+  option, or from a `REVIEWER_ID` environment variable when the option is
+  absent
+- a mutating command must fail with a structured error when no reviewer ID is
+  available
+- the resolved reviewer ID is written into every review decision record
+- read-only commands do not require a reviewer ID
+
+The first vertical slice does not implement authentication. The supplied
+reviewer ID is trusted operator input, which is acceptable while review runs on
+a single trusted machine. A web review UI must replace this with real
+authentication before multi-user review, and must keep writing the same
+reviewer identity field.
 
 ## CLI Commands
 

@@ -85,16 +85,20 @@ Exit criteria:
 Goal: support one deterministic ingestion path for an Apple technical
 specification page.
 
+Precondition: the canonical entities required by the fixture are seeded per
+ADR-022 before ingestion runs. Ingestion does not create production entities.
+
 Pipeline:
 
 ```text
-register candidate source
+seed canonical entities (ADR-022)
+ -> register candidate source
  -> fetch source
  -> create snapshot
  -> classify source
  -> parse known fields
  -> create evidence anchors
- -> create candidate entities and candidate facts
+ -> create candidate facts with entity references
  -> run candidate intake validation
 ```
 
@@ -197,6 +201,11 @@ Exit criteria:
 
 Goal: expose a small answer API that proves the knowledge path works.
 
+The first implementation composes the answer string from deterministic
+templates over retrieved facts and evidence. LLM-generated answer prose, model
+selection, and answer faithfulness validation are deferred to a future ADR.
+This keeps Phase 5 testable and proves the data path without an LLM dependency.
+
 Initial endpoint:
 
 ```http
@@ -240,6 +249,8 @@ Exit criteria:
 - answer refuses unsupported claims
 - current-status questions require freshness checks
 - answer generation does not use vector payloads as canonical evidence
+- answer text is produced by deterministic templates; no LLM call is required
+  to pass this phase
 
 ## Phase 6: Index Outbox and Derived Views
 
@@ -396,24 +407,58 @@ Answer tests:
 3. Create canonical schema migration.
 4. Add enum definitions for freshness, confidence, candidate states, issue states,
    and review decisions.
-5. Implement source registration.
-6. Add fixture snapshot for one Apple technical specification page.
-7. Implement deterministic tech spec parser.
-8. Implement entity resolution scoring.
-9. Implement unit registry and unit normalization.
-10. Implement predicate role registry.
-11. Implement candidate intake validation.
-12. Implement review decision records.
-13. Implement CLI review commands and output fixtures.
-14. Implement fact promotion service.
-15. Implement index outbox writer.
-16. Implement exact entity and fact lookup.
-17. Implement cited answer endpoint.
-18. Add rebuild and drift-check commands.
+5. Add canonical entity seed data and an `entity create` CLI command (ADR-022).
+6. Implement source registration.
+7. Add fixture snapshot for one Apple technical specification page.
+8. Implement deterministic tech spec parser.
+9. Implement entity resolution scoring.
+10. Implement unit registry and unit normalization.
+11. Implement predicate role registry.
+12. Implement candidate intake validation.
+13. Implement review decision records.
+14. Implement CLI review commands and output fixtures.
+15. Implement fact promotion service.
+16. Implement index outbox writer.
+17. Implement exact entity and fact lookup.
+18. Implement cited answer endpoint.
+19. Add rebuild and drift-check commands.
 
 ## Open Decisions
 
-- None.
+Open decisions are tracked as a pre-phase checklist. Each item must be resolved
+before its phase starts.
+
+Before Phase 2:
+
+- Define allowed enum values for `has_support_status`, `has_sales_status`, and
+  other enum-valued predicates (ADR-021 follow-up).
+- Define the evidence quote length limit and a snapshot retention note covering
+  the licensing risk of storing and quoting Apple content.
+
+Before Phase 4:
+
+- Define retrieval ranking weights beyond entity resolution scoring (ADR-005
+  follow-up).
+- Define retrieval evaluation sets (ADR-005 follow-up).
+- Define context packing limits for answer contexts (ADR-005 follow-up).
+
+Before Phase 7:
+
+- Add `has_trade_in_value` and other pending-TTL predicates to the predicate
+  registry (ADR-006 and ADR-021 follow-up).
+- Define the re-ingestion diff format (ADR-008 follow-up).
+
+Before Phase 8:
+
+- Define output schemas and unsupported claim detection rules for generated
+  content (ADR-012 follow-up).
+- Decide the answer and content language policy: how response language is
+  chosen and how fact `locale` interacts with it.
+
+Before LLM answer generation (after Phase 5):
+
+- Select the LLM provider and model, prompt management, and answer faithfulness
+  validation in a new ADR. Phase 5 itself uses deterministic templates.
 
 Resolved by implementation sequencing:
 
@@ -421,6 +466,30 @@ Resolved by implementation sequencing:
   is proven in Phase 6.
 - Semantic and vector retrieval will be added incrementally after Phase 6, once
   the first index and projection infrastructure is in place.
+- Phase 5 answers are composed by deterministic templates over retrieved facts
+  and evidence; LLM-generated prose requires a future ADR.
+
+Resolved by ADR-022:
+
+- Canonical entities for the first vertical slice are seeded manually through
+  checked-in seed data or an `entity create` CLI command.
+- Ingestion does not create production entities; extraction emits entity
+  references in candidate fact resolution metadata.
+- The `candidate_entities` table and candidate-entity promotion state machine
+  are deferred to a later ADR.
+
+Resolved by ADR-019 (reviewer identity):
+
+- Mutating review commands resolve reviewer identity from `--reviewer <id>` or
+  the `REVIEWER_ID` environment variable and fail without one.
+- The first vertical slice trusts operator-supplied identity; a web UI must add
+  real authentication.
+
+Resolved by ADR-010 (snapshot storage):
+
+- The first vertical slice stores raw snapshot content and normalized text in
+  the Postgres `source_snapshots` table; filesystem or object storage is the
+  upgrade path keyed by checksum.
 
 Resolved by ADR-019:
 

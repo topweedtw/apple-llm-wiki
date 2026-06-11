@@ -2,7 +2,7 @@
 
 ## 狀態
 
-Proposed
+Accepted
 
 ## 日期
 

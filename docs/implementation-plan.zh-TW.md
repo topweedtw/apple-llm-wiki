@@ -80,16 +80,20 @@ Exit criteria:
 
 目標：支援一條 deterministic ingestion path，先處理 Apple technical specification page。
 
+前置條件：fixture 需要的 canonical entities 必須先依 ADR-022 完成 seed，
+ingestion 才能執行。Ingestion 不建立 production entities。
+
 Pipeline:
 
 ```text
-register candidate source
+seed canonical entities (ADR-022)
+ -> register candidate source
  -> fetch source
  -> create snapshot
  -> classify source
  -> parse known fields
  -> create evidence anchors
- -> create candidate entities and candidate facts
+ -> create candidate facts with entity references
  -> run candidate intake validation
 ```
 
@@ -191,6 +195,11 @@ Exit criteria:
 
 目標：公開一個小型 answer API，證明 knowledge path 可以運作。
 
+第一版實作以 deterministic templates 從 retrieved facts 與 evidence 組合 answer
+字串。LLM-generated answer prose、model selection 與 answer faithfulness
+validation 延後到未來的 ADR。這讓 Phase 5 可測試，且不需依賴 LLM 就能證明
+data path。
+
 Initial endpoint:
 
 ```http
@@ -234,6 +243,7 @@ Exit criteria:
 - answer 會拒絕 unsupported claims
 - current-status questions 必須執行 freshness checks
 - answer generation 不會把 vector payloads 當成 canonical evidence
+- answer text 由 deterministic templates 產生；通過此 phase 不需要任何 LLM call
 
 ## Phase 6: Index Outbox and Derived Views
 
@@ -385,29 +395,86 @@ Answer tests:
 2. Add database migration tooling.
 3. Create canonical schema migration.
 4. Add enum definitions for freshness, confidence, candidate states, issue states, and review decisions.
-5. Implement source registration.
-6. Add fixture snapshot for one Apple technical specification page.
-7. Implement deterministic tech spec parser.
-8. Implement entity resolution scoring.
-9. Implement unit registry and unit normalization.
-10. Implement predicate role registry.
-11. Implement candidate intake validation.
-12. Implement review decision records.
-13. Implement CLI review commands and output fixtures.
-14. Implement fact promotion service.
-15. Implement index outbox writer.
-16. Implement exact entity and fact lookup.
-17. Implement cited answer endpoint.
-18. Add rebuild and drift-check commands.
+5. Add canonical entity seed data and an `entity create` CLI command (ADR-022).
+6. Implement source registration.
+7. Add fixture snapshot for one Apple technical specification page.
+8. Implement deterministic tech spec parser.
+9. Implement entity resolution scoring.
+10. Implement unit registry and unit normalization.
+11. Implement predicate role registry.
+12. Implement candidate intake validation.
+13. Implement review decision records.
+14. Implement CLI review commands and output fixtures.
+15. Implement fact promotion service.
+16. Implement index outbox writer.
+17. Implement exact entity and fact lookup.
+18. Implement cited answer endpoint.
+19. Add rebuild and drift-check commands.
 
 ## Open Decisions
 
-- None.
+Open decisions 以 pre-phase checklist 追蹤。每個項目必須在對應 phase 開始前解決。
+
+Phase 2 之前：
+
+- 定義 `has_support_status`、`has_sales_status` 與其他 enum-valued predicates
+  允許的 enum values（ADR-021 follow-up）。
+- 定義 evidence quote 長度上限，以及說明儲存與引用 Apple content 授權風險的
+  snapshot retention note。
+
+Phase 4 之前：
+
+- 定義 entity resolution scoring 以外的 retrieval ranking weights（ADR-005
+  follow-up）。
+- 定義 retrieval evaluation sets（ADR-005 follow-up）。
+- 定義 answer contexts 的 context packing limits（ADR-005 follow-up）。
+
+Phase 7 之前：
+
+- 把 `has_trade_in_value` 與其他 pending-TTL predicates 加入 predicate
+  registry（ADR-006、ADR-021 follow-up）。
+- 定義 re-ingestion diff format（ADR-008 follow-up）。
+
+Phase 8 之前：
+
+- 定義 generated content 的 output schemas 與 unsupported claim detection
+  rules（ADR-012 follow-up）。
+- 決定 answer 與 content 的語言政策：response language 如何選擇，以及 fact
+  `locale` 與它的關係。
+
+LLM answer generation 之前（Phase 5 之後）：
+
+- 以新 ADR 選定 LLM provider 與 model、prompt management、answer faithfulness
+  validation。Phase 5 本身使用 deterministic templates。
 
 Resolved by implementation sequencing:
 
 - Page rendering 會在 Phase 8 實作，且必須等 Phase 6 的 derived view consistency 被證明後才進行。
 - Semantic 與 vector retrieval 會在 Phase 6 之後漸進加入，前提是第一批 index 與 projection infrastructure 已就緒。
+- Phase 5 的 answers 由 deterministic templates 從 retrieved facts 與 evidence
+  組合；LLM-generated prose 需要未來的 ADR。
+
+Resolved by ADR-022:
+
+- 第一條 vertical slice 的 canonical entities 透過 checked-in seed data 或
+  `entity create` CLI command 人工 seed。
+- Ingestion 不建立 production entities；extraction 把 entity references 放在
+  candidate fact resolution metadata。
+- `candidate_entities` 表與 candidate-entity promotion state machine 延後到
+  後續 ADR。
+
+Resolved by ADR-019（reviewer identity）:
+
+- Mutating review commands 從 `--reviewer <id>` 或 `REVIEWER_ID` environment
+  variable 解析 reviewer identity，缺少時必須失敗。
+- 第一條 vertical slice 信任 operator 提供的 identity；Web UI 必須加上真正的
+  authentication。
+
+Resolved by ADR-010（snapshot storage）:
+
+- 第一條 vertical slice 把 raw snapshot content 與 normalized text 存在
+  Postgres `source_snapshots` 表；filesystem 或 object storage 是以 checksum
+  為 key 的升級路徑。
 
 Resolved by ADR-019:
 

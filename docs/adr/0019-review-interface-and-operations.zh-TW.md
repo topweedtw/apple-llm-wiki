@@ -2,7 +2,7 @@
 
 ## 狀態
 
-Proposed
+Accepted
 
 ## 日期
 
@@ -97,6 +97,22 @@ Review decision records 必須包含：
 - approving entity resolution below the auto-resolution threshold
 - overriding the top entity resolution candidate
 - promoting a candidate with any accepted non-blocking issue
+
+## Reviewer Identity
+
+每個 review decision record 都需要 reviewer identity。在 CLI-first 階段，
+identity 由操作者提供：
+
+- mutating review commands 先從 `--reviewer <id>` option 解析 reviewer ID，
+  沒有 option 時改用 `REVIEWER_ID` environment variable
+- 沒有 reviewer ID 可用時，mutating command 必須以 structured error 失敗
+- 解析出的 reviewer ID 會寫入每一筆 review decision record
+- read-only commands 不需要 reviewer ID
+
+第一條 vertical slice 不實作 authentication。提供的 reviewer ID 是受信任的
+operator input；在單一受信任機器上執行 review 時可以接受。Web review UI 在
+multi-user review 前必須以真正的 authentication 取代這個機制，並持續寫入相同的
+reviewer identity 欄位。
 
 ## CLI Commands
 

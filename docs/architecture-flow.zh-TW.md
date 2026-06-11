@@ -45,8 +45,8 @@
            v
 +----------------------+
 | Staging              |
-| candidate_entities   |
 | candidate_facts      |
+| entity references    |
 | evidence anchors     |
 +----------+-----------+
            |
@@ -66,7 +66,7 @@
 | entities             |
 | facts                |
 | evidence             |
-| pages                |
+| pages (Phase 8)      |
 | reviews/jobs         |
 +----+------+-----+----+
      |      |     |
@@ -142,7 +142,8 @@ Phase 1: Canonical Data Model          (ADR-003, 006, 013, 014, 020, 021)
     index_outbox
   EXIT: schema tests enforce evidence requirement + no needs_review on production facts
 
-Phase 2: Ingestion Pipeline MVP        (ADR-008, 009, 010, 011, 018)
+Phase 2: Ingestion Pipeline MVP        (ADR-008, 009, 010, 011, 018, 022)
+  Precondition: canonical entities seeded per ADR-022
   Services:
     SourceRegistrationService   SourceFetcher       SnapshotStore
     SourceClassifier            TechSpecParser
@@ -213,7 +214,7 @@ Phase 8: Page and Content Generation   (ADR-012)
          |
          v
 [Staging]
-  candidate_entities, candidate_facts, evidence anchors
+  candidate_facts, entity references, evidence anchors
          |
          v
 [Candidate Intake Validation]  (ADR-008, 011, 016, 020, 021)

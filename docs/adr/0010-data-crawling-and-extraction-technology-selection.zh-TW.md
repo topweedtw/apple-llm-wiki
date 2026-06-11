@@ -2,7 +2,7 @@
 
 ## 狀態
 
-Proposed
+Accepted
 
 ## 日期
 
@@ -112,9 +112,12 @@ Snapshot 內容：
 
 初始 storage：
 
-- prototype 使用 local filesystem
-- production 使用 object storage
-- Postgres metadata table 用於 lookup 與 audit
+- 第一條 vertical slice 把 raw content 與 normalized text 直接存進 Postgres 的
+  `source_snapshots` 表，與 snapshot metadata 放在一起。單一儲存讓 snapshots
+  與 ingestion records 保持 transactional，也容易作為 test fixtures 載入。
+- 當 snapshot volume 或大小讓 Postgres 儲存不再實際時，把 raw content 改放
+  local filesystem 或 object storage，以 checksum 為 key。無論哪種情況，
+  snapshot metadata 都留在 Postgres 供 lookup 與 audit。
 
 ## Parsing Strategy
 

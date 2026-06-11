@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Date
 
@@ -115,9 +115,13 @@ Snapshot contents:
 
 Initial storage:
 
-- local filesystem for prototypes
-- object storage for production
-- Postgres metadata table for lookup and audit
+- For the first vertical slice, store raw content and normalized text directly
+  in the Postgres `source_snapshots` table alongside snapshot metadata. A
+  single store keeps snapshots transactional with ingestion records and easy
+  to load as test fixtures.
+- Move raw content to local filesystem or object storage, keyed by checksum,
+  when snapshot volume or size makes Postgres storage impractical. Snapshot
+  metadata stays in Postgres for lookup and audit in all cases.
 
 ## Parsing Strategy
 

@@ -4,7 +4,7 @@ This directory contains Architecture Decision Records for the Apple LLM Wiki pro
 
 Traditional Chinese: [README.zh-TW.md](README.zh-TW.md)
 
-## Accepted / Proposed
+## Accepted
 
 Each ADR should have an English version and a Traditional Chinese version.
 
@@ -50,6 +50,8 @@ Each ADR should have an English version and a Traditional Chinese version.
   - [繁體中文](0020-unit-registry-and-normalization.zh-TW.md)
 - [ADR-021: Predicate Role and Entity Type Constraints](0021-predicate-role-and-entity-type-constraints.md)
   - [繁體中文](0021-predicate-role-and-entity-type-constraints.zh-TW.md)
+- [ADR-022: Entity Seeding and Creation Policy](0022-entity-seeding-and-creation-policy.md)
+  - [繁體中文](0022-entity-seeding-and-creation-policy.zh-TW.md)
 
 ## ADR Set
 

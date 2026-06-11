@@ -4,7 +4,7 @@
 
 English: [README.md](README.md)
 
-## Accepted / Proposed
+## Accepted
 
 每份 ADR 都應該同時有英文版與繁體中文版。
 
@@ -50,6 +50,8 @@ English: [README.md](README.md)
   - [繁體中文](0020-unit-registry-and-normalization.zh-TW.md)
 - [ADR-021: Predicate Role and Entity Type Constraints](0021-predicate-role-and-entity-type-constraints.md)
   - [繁體中文](0021-predicate-role-and-entity-type-constraints.zh-TW.md)
+- [ADR-022: Entity Seeding and Creation Policy](0022-entity-seeding-and-creation-policy.md)
+  - [繁體中文](0022-entity-seeding-and-creation-policy.zh-TW.md)
 
 ## ADR 集合
 
