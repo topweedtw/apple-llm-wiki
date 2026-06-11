@@ -125,6 +125,24 @@ fact promote <candidate_fact_id>
 
 Command names 可在 implementation 時調整，但 operation coverage 必須保留。
 
+## Entity Resolution Approval Flow
+
+`review entity approve` 與 `review entity choose` 只 approve selected subject 或 object 的 entity resolution sub-decision。
+
+它們不會 approve candidate fact。Entity resolution approved 後，reviewer 仍必須在所有 candidate fact review requirements 滿足時執行 `review fact approve`。Fact approval 後，promotion 仍是獨立的 `fact promote` operation。
+
+流程：
+
+```text
+review entity approve/choose
+ -> resolve entity-resolution issue
+ -> candidate fact remains needs_review, or moves from blocked to needs_review
+ -> review fact approve
+ -> fact promote
+```
+
+如果 entity resolution 是唯一 blocking issue，approve 它可以 unblock candidate fact，但不得跳過 fact approval。
+
 ## CLI Output Contract
 
 Review CLI commands 必須支援兩種 output modes：

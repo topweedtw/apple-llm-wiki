@@ -93,6 +93,29 @@ extracted
 
 Rejected candidates are terminal unless a new candidate is created from a corrected extraction or manual edit.
 
+## Entity Resolution Approval
+
+Entity resolution approval is a sub-decision on a candidate fact, not approval
+of the candidate fact itself.
+
+Approving subject or object entity resolution may:
+
+- mark the selected resolution as reviewer-approved
+- record reviewer identity, timestamp, and reason when required
+- resolve entity-resolution blocking issues
+- move a candidate fact from `blocked` to `needs_review` when entity resolution
+  was the only blocking issue
+
+Approving entity resolution must not:
+
+- change a candidate fact state directly to `approved`
+- promote a candidate fact
+- bypass evidence, predicate, unit, freshness, confidence, or conflict checks
+
+Candidate fact approval remains a separate transition from `needs_review` to
+`approved`. Promotion remains a separate transition from `approved` to
+`promoted`.
+
 ## Candidate Issue States
 
 Allowed issue states:
@@ -184,5 +207,4 @@ Costs:
 
 - Define database constraints for allowed states.
 - Define transition validation in ingestion services.
-- Update ADR-009 unknown-data examples to use `candidate-fact:*`.
 - Add tests for invalid promotion attempts.

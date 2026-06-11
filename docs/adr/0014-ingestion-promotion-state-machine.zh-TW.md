@@ -93,6 +93,25 @@ extracted
 
 Rejected candidates 為 terminal，除非從 corrected extraction 或 manual edit 建立新的 candidate。
 
+## Entity Resolution Approval
+
+Entity resolution approval 是 candidate fact 上的 sub-decision，不等於 approve candidate fact 本身。
+
+Approve subject 或 object entity resolution 可以：
+
+- 將選定 resolution 標記為 reviewer-approved
+- 必要時記錄 reviewer identity、timestamp 與 reason
+- resolve entity-resolution blocking issues
+- 當 entity resolution 是唯一 blocking issue 時，將 candidate fact 從 `blocked` 移到 `needs_review`
+
+Approve entity resolution 不得：
+
+- 直接將 candidate fact state 改成 `approved`
+- promote candidate fact
+- 繞過 evidence、predicate、unit、freshness、confidence 或 conflict checks
+
+Candidate fact approval 仍是獨立的 `needs_review` 到 `approved` transition。Promotion 仍是獨立的 `approved` 到 `promoted` transition。
+
 ## Candidate Issue States
 
 允許的 issue states：

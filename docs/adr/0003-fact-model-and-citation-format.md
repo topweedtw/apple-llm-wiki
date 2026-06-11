@@ -256,6 +256,8 @@ Examples:
 
 - `belongs_to_line`
 - `belongs_to_generation`
+- `has_variant`
+- `variant_of`
 - `uses_chip`
 - `has_feature`
 - `has_display_size`

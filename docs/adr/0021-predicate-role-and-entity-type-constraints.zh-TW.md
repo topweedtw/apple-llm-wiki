@@ -42,6 +42,16 @@ Entity IDs 可能有效，但 predicate role 是錯的。
 
 Registry 應是 versioned data，而不是散落在 parser logic 中。
 
+## Locale Policy Values
+
+允許的 `locale_policy` values：
+
+- `required`：使用此 predicate 的 production facts 必須包含 locale 或 region。
+- `optional`：production facts 可以是 global，但當 claim scope 是 region-specific 時，必須包含 locale 或 region。
+- `prohibited`：使用此 predicate 的 production facts 不得包含 locale 或 region，因為 claim 依定義是 global。
+
+除非同步更新本 ADR 與 promotion validation，否則不得引入額外 locale policy enum values。
+
 ## Predicate Definition Format
 
 範例：
@@ -77,6 +87,12 @@ Identity and grouping：
   subject_types: [Product, Variant]
   object_required: true
   object_types: [ProductGeneration]
+  value_types: [entity]
+
+- predicate: has_variant
+  subject_types: [Product]
+  object_required: true
+  object_types: [Variant]
   value_types: [entity]
 
 - predicate: variant_of
@@ -119,11 +135,19 @@ Hardware and features：
 Dates and events：
 
 ```yaml
+- predicate: introduced_at
+  subject_types: [Product, ProductGeneration, Chip, OperatingSystem, Accessory, Feature]
+  object_required: true
+  object_types: [Event]
+  value_types: [entity]
+
 - predicate: announced_at
   subject_types: [Product, ProductGeneration, Chip, OperatingSystem, Accessory, Feature]
   object_required: true
   object_types: [Event]
   value_types: [entity]
+  status: legacy_alias
+  preferred_predicate: introduced_at
 
 - predicate: has_announcement_date
   subject_types: [Product, ProductGeneration, Chip, OperatingSystem, Accessory, Feature, Event]
@@ -138,6 +162,8 @@ Dates and events：
   value_types: [date]
   locale_policy: optional
 ```
+
+`introduced_at` 是將 entity 連到 announcement 或 launch event 的 preferred relationship predicate。`has_announcement_date` 是 scalar date predicate。`announced_at` 保留為 legacy alias 以維持 ADR compatibility，但新的 facts 應使用 `introduced_at`，除非後續 ADR 進一步收斂語意。
 
 Compatibility and requirements：
 
@@ -189,7 +215,8 @@ Lifecycle and availability：
   object_types: []
   value_types: [enum]
   temporal: true
-  locale_policy: required_for_region_specific_claims
+  locale_policy: optional
+  notes: Region-specific availability or sales status facts must include locale or region.
 
 - predicate: has_price
   subject_types: [Product, Variant, Accessory]

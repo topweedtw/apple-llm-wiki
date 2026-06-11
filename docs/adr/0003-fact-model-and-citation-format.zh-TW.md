@@ -246,6 +246,8 @@ Predicates 應是 normalized snake_case verbs 或 verb phrases。
 
 - `belongs_to_line`
 - `belongs_to_generation`
+- `has_variant`
+- `variant_of`
 - `uses_chip`
 - `has_feature`
 - `has_display_size`

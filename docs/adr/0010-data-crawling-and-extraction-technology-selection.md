@@ -38,6 +38,11 @@ Use a layered crawling and extraction stack:
 7. Use Postgres full-text search and pgvector initially.
 8. Add OpenSearch, Temporal, or graph databases only when scale or workflow complexity justifies them.
 
+ADR-017 selects TypeScript on Node.js as the initial runtime. Therefore, the
+initial implementation should use the Node.js tools listed in this ADR. Python
+tools are retained as future alternatives for specialized workers or a later
+runtime decision; they are not part of the first vertical slice.
+
 ## Fetching Strategy
 
 ### Static Pages
@@ -48,6 +53,8 @@ Recommended tools:
 
 - Python: `httpx`, `requests`
 - Node.js: `undici`, built-in `fetch`
+
+For the initial ADR-017 runtime, use `undici` or built-in `fetch`.
 
 Use for:
 
@@ -121,6 +128,10 @@ Recommended tools:
 - Python: `BeautifulSoup`, `lxml`, `trafilatura`
 - Node.js: `cheerio`, `linkedom`
 
+For the initial ADR-017 runtime, use `cheerio` first. `linkedom` may be used
+when DOM-like parsing is needed. Python parsing tools are alternatives, not
+initial dependencies.
+
 Use deterministic parsers for:
 
 - specification tables
@@ -161,6 +172,10 @@ Initial acceptable options:
 - simple Postgres-backed job table
 - BullMQ with Redis for Node.js implementation
 - Celery, RQ, or Dramatiq for Python implementation
+
+For the first vertical slice, use the simple Postgres-backed job table selected
+by ADR-017. BullMQ, Redis, Celery, RQ, Dramatiq, and Temporal remain upgrade
+paths.
 
 Upgrade to Temporal only when workflows require long-running retries, human approval steps, and complex orchestration.
 

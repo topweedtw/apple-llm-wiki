@@ -38,6 +38,8 @@ Apple LLM Wiki 會 ingest 多種 source types：
 7. 初期使用 Postgres full-text search 與 pgvector。
 8. 只有在 scale 或 workflow complexity 需要時，才加入 OpenSearch、Temporal 或 graph databases。
 
+ADR-017 選定 TypeScript on Node.js 作為初始 runtime。因此 initial implementation 應使用本 ADR 中列出的 Node.js tools。Python tools 保留為 future alternatives，可用於 specialized workers 或後續 runtime decision；它們不屬於第一條 vertical slice。
+
 ## Fetching Strategy
 
 ### Static Pages
@@ -48,6 +50,8 @@ Apple LLM Wiki 會 ingest 多種 source types：
 
 - Python: `httpx`, `requests`
 - Node.js: `undici`, built-in `fetch`
+
+依 ADR-017 的初始 runtime，使用 `undici` 或 built-in `fetch`。
 
 適用於：
 
@@ -121,6 +125,8 @@ Snapshot 內容：
 - Python: `BeautifulSoup`, `lxml`, `trafilatura`
 - Node.js: `cheerio`, `linkedom`
 
+依 ADR-017 的初始 runtime，優先使用 `cheerio`。需要 DOM-like parsing 時可使用 `linkedom`。Python parsing tools 是 alternatives，不是 initial dependencies。
+
 Deterministic parsers 適合：
 
 - specification tables
@@ -161,6 +167,8 @@ Crawling 與 ingestion 應透過 job queue 執行。
 - simple Postgres-backed job table
 - Node.js implementation 使用 BullMQ with Redis
 - Python implementation 使用 Celery、RQ 或 Dramatiq
+
+第一條 vertical slice 使用 ADR-017 選定的 simple Postgres-backed job table。BullMQ、Redis、Celery、RQ、Dramatiq 與 Temporal 保留為 upgrade paths。
 
 只有當 workflows 需要 long-running retries、human approval steps 與 complex orchestration 時，才升級到 Temporal。
 

@@ -135,6 +135,29 @@ fact promote <candidate_fact_id>
 Command names may change during implementation, but the operation coverage must
 remain.
 
+## Entity Resolution Approval Flow
+
+`review entity approve` and `review entity choose` approve only the entity
+resolution sub-decision for the selected subject or object.
+
+They do not approve the candidate fact. After entity resolution is approved, the
+reviewer must still run `review fact approve` when all candidate fact review
+requirements are satisfied. After fact approval, promotion remains a separate
+`fact promote` operation.
+
+The flow is:
+
+```text
+review entity approve/choose
+ -> resolve entity-resolution issue
+ -> candidate fact remains needs_review, or moves from blocked to needs_review
+ -> review fact approve
+ -> fact promote
+```
+
+If entity resolution was the only blocking issue, approving it may unblock the
+candidate fact, but it must not skip fact approval.
+
 ## CLI Output Contract
 
 Review CLI commands must support two output modes:

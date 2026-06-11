@@ -174,15 +174,17 @@ If a value is unknown:
 
 - leave the production fact absent, or
 - create an explicit `unknown` candidate fact only when useful for review workflows, and
-- keep it in `candidate_facts` with `review_status: needs_review`.
+- keep it in `candidate_facts` with candidate state `needs_review` and explicit issues.
 
 Example:
 
 ```yaml
-id: fact:old-product:original-price:unknown
+id: candidate-fact:old-product:original-price:unknown
 predicate: has_original_price
 value: unknown
-review_status: needs_review
+state: needs_review
+issues:
+  - missing_value
 ```
 
 ## Review Rules

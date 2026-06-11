@@ -42,6 +42,16 @@ Each predicate definition should include:
 
 The registry should be versioned data, not scattered parser logic.
 
+## Locale Policy Values
+
+Allowed `locale_policy` values:
+
+- `required`: production facts using this predicate must include locale or region.
+- `optional`: production facts may be global, but locale or region must be present when the claim scope is region-specific.
+- `prohibited`: production facts using this predicate must not include locale or region because the claim is global by definition.
+
+Do not introduce additional locale policy enum values without updating this ADR and promotion validation.
+
 ## Predicate Definition Format
 
 Example:
@@ -77,6 +87,12 @@ Identity and grouping:
   subject_types: [Product, Variant]
   object_required: true
   object_types: [ProductGeneration]
+  value_types: [entity]
+
+- predicate: has_variant
+  subject_types: [Product]
+  object_required: true
+  object_types: [Variant]
   value_types: [entity]
 
 - predicate: variant_of
@@ -119,11 +135,19 @@ Hardware and features:
 Dates and events:
 
 ```yaml
+- predicate: introduced_at
+  subject_types: [Product, ProductGeneration, Chip, OperatingSystem, Accessory, Feature]
+  object_required: true
+  object_types: [Event]
+  value_types: [entity]
+
 - predicate: announced_at
   subject_types: [Product, ProductGeneration, Chip, OperatingSystem, Accessory, Feature]
   object_required: true
   object_types: [Event]
   value_types: [entity]
+  status: legacy_alias
+  preferred_predicate: introduced_at
 
 - predicate: has_announcement_date
   subject_types: [Product, ProductGeneration, Chip, OperatingSystem, Accessory, Feature, Event]
@@ -138,6 +162,12 @@ Dates and events:
   value_types: [date]
   locale_policy: optional
 ```
+
+`introduced_at` is the preferred relationship predicate for linking an entity to
+an announcement or launch event. `has_announcement_date` is the scalar date
+predicate. `announced_at` is retained as a legacy alias for ADR compatibility,
+but new facts should use `introduced_at` unless a later ADR narrows the
+semantics.
 
 Compatibility and requirements:
 
@@ -189,7 +219,8 @@ Lifecycle and availability:
   object_types: []
   value_types: [enum]
   temporal: true
-  locale_policy: required_for_region_specific_claims
+  locale_policy: optional
+  notes: Region-specific availability or sales status facts must include locale or region.
 
 - predicate: has_price
   subject_types: [Product, Variant, Accessory]
