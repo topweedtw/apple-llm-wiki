@@ -17,12 +17,20 @@ export const ID_TYPES = [
   'feature',
   'event',
   'accessory',
+  'support-policy',
   'compatibility-rule',
   // knowledge records (ADR-003)
   'source',
   'evidence',
   'fact',
   'candidate-fact',
+  // ingestion and review records (ADR-014, ADR-019)
+  'candidate-source',
+  'candidate-issue',
+  'review-decision',
+  // derived views (ADR-001, ADR-015)
+  'page',
+  'index-event',
 ] as const;
 
 export type IdType = (typeof ID_TYPES)[number];

@@ -91,6 +91,7 @@ Framework code 應呼叫 domain services。Domain services 不應依賴 Fastify 
 
 初始 CLI commands：
 
+- `entity create`
 - `source register`
 - `source fetch`
 - `source ingest-fixture`

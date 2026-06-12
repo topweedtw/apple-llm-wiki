@@ -93,7 +93,7 @@ Required evidence fields:
 - `quote` or equivalent source span
 - `retrieved_at`
 
-Candidate facts without evidence must remain in `candidate_facts` with `review_status: needs_review`, or be rejected. They must not be inserted into the production `facts` table.
+Candidate facts without evidence must remain in `candidate_facts` in state `needs_review`, or be rejected. They must not be inserted into the production `facts` table.
 
 Evidence quotes must be within the 300-character limit defined in ADR-003. A
 candidate fact whose quote exceeds the limit records a blocking

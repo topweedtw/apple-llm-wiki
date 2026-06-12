@@ -96,7 +96,7 @@ Use only as supporting or discovery evidence unless manually verified.
 
 Source has not been classified or reviewed.
 
-Claims from unknown sources should remain as candidate facts with `review_status: needs_review` and should not be promoted to production facts or used for confident LLM answers until reviewed.
+Claims from unknown sources should remain as candidate facts in state `needs_review` and should not be promoted to production facts or used for confident LLM answers until reviewed.
 
 ## Source Record Fields
 

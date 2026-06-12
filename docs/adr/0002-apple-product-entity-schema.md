@@ -196,8 +196,8 @@ A durable compatibility concept between entities.
 
 Examples:
 
-- `compatibility:apple-pencil-pro-ipad-pro-m4`
-- `compatibility:ios-17-supported-iphones`
+- `compatibility-rule:apple-pencil-pro-ipad-pro-m4`
+- `compatibility-rule:ios-17-supported-iphones`
 
 Compatibility rules may also be represented as facts when they are simple. Use this entity type when a rule has its own source set, explanation, exceptions, or lifecycle.
 
@@ -298,7 +298,6 @@ Common relationship types:
 - `has_feature`
 - `compatible_with`
 - `requires`
-- `part_of`
 
 Relationship records may reference source IDs when the relationship is source-backed and important for retrieval.
 

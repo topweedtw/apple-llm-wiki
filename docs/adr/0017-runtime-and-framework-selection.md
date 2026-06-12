@@ -104,6 +104,7 @@ Initial HTTP endpoints:
 
 Initial CLI commands:
 
+- `entity create`
 - `source register`
 - `source fetch`
 - `source ingest-fixture`

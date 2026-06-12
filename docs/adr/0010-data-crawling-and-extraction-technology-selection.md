@@ -144,7 +144,7 @@ Use deterministic parsers for:
 - known Apple page templates
 - model number tables
 
-Parser output should be candidate facts, candidate entities, and evidence anchors.
+Parser output should be candidate facts, entity references on those candidates (ADR-022), and evidence anchors.
 
 ## LLM-Assisted Extraction
 
@@ -165,7 +165,7 @@ Rules:
 - Missing evidence must be recorded as a blocking candidate issue before review.
 - Production facts must include evidence before promotion.
 - LLM output must pass candidate intake validation before review and promotion validation before publication.
-- Low-confidence extraction must remain in `candidate_facts` with `review_status: needs_review`.
+- Low-confidence extraction must remain in `candidate_facts` in state `needs_review`.
 
 ## Queue and Workflow
 

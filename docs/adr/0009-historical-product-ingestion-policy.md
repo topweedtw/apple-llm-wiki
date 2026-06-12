@@ -176,11 +176,15 @@ If a value is unknown:
 - create an explicit `unknown` candidate fact only when useful for review workflows, and
 - keep it in `candidate_facts` with candidate state `needs_review` and explicit issues.
 
+Original launch prices use the `has_price` predicate with `valid_from` and
+`valid_to` validity bounds. There is no separate `has_original_price`
+predicate in the ADR-021 registry.
+
 Example:
 
 ```yaml
-id: candidate-fact:old-product:original-price:unknown
-predicate: has_original_price
+id: candidate-fact:old-product:price:unknown
+predicate: has_price
 value: unknown
 state: needs_review
 issues:

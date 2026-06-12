@@ -196,8 +196,8 @@ Entities 之間的持久相容性概念。
 
 範例：
 
-- `compatibility:apple-pencil-pro-ipad-pro-m4`
-- `compatibility:ios-17-supported-iphones`
+- `compatibility-rule:apple-pencil-pro-ipad-pro-m4`
+- `compatibility-rule:ios-17-supported-iphones`
 
 簡單的相容性規則也可以表示為 facts。當某條規則有自己的來源集合、說明、例外或生命週期時，才使用此 entity type。
 
@@ -298,7 +298,6 @@ relationships:
 - `has_feature`
 - `compatible_with`
 - `requires`
-- `part_of`
 
 當 relationship 對 retrieval 很重要且有來源支持時，relationship records 可以引用 source IDs。
 

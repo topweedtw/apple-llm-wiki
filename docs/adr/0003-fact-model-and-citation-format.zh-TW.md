@@ -52,6 +52,7 @@ Fact pipeline 必須遵守以下規則：
 - Production `facts.source_refs` 必填。
 - 每個 production `source_ref` 都必須指向存在的 evidence record。
 - `needs_review` 不得作為 production fact state 來繞過 schema requirements。
+- Candidate fact 的 state 欄位名為 `state`，使用 ADR-014 的 candidate fact state values。`review_status` 是 ADR-004 定義的 source-record 欄位，不是 fact 欄位。
 - 沒有 evidence 的 claim 只能留在 `candidate_facts`，或被 rejected；不能進 production `facts`。
 
 Candidate fact 範例：
@@ -68,7 +69,7 @@ normalized_unit: null
 issues:
   - missing_evidence
   - unresolved_subject_entity
-review_status: needs_review
+state: needs_review
 ```
 
 ## Fact Identity
@@ -152,6 +153,7 @@ Production fact 必要欄位：
 - `supersedes`
 - `superseded_by`
 - `conflicts_with`
+- `derived_from`（僅 derived facts）
 - `notes`
 
 ## Fact Types
@@ -381,7 +383,7 @@ Freshness 應獨立於 confidence 更新。
 - 發表日期通常是 `historical`。
 - 目前販售狀態可能是 `current` 或 `possibly_stale`。
 - 來源衝突的主張應標記為 `disputed`。
-- 未經 review 的 imported claim 應留在 `candidate_facts`，並標記 `review_status: needs_review`。
+- 未經 review 的 imported claim 應留在 `candidate_facts`，state 為 `needs_review`。
 
 ## Locale 與 Region
 

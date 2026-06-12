@@ -52,6 +52,7 @@ The fact pipeline must follow these rules:
 - Production `facts.source_refs` is required.
 - Every production `source_ref` must point to an existing evidence record.
 - `needs_review` must not be used as a production fact state to bypass schema requirements.
+- The candidate fact state field is named `state` and uses the ADR-014 candidate fact state values. `review_status` is a source-record field defined in ADR-004, not a fact field.
 - A claim without evidence can only remain in `candidate_facts` or be rejected. It cannot enter production `facts`.
 
 Example candidate fact:
@@ -68,7 +69,7 @@ normalized_unit: null
 issues:
   - missing_evidence
   - unresolved_subject_entity
-review_status: needs_review
+state: needs_review
 ```
 
 ## Fact Identity
@@ -152,6 +153,7 @@ Optional fields:
 - `supersedes`
 - `superseded_by`
 - `conflicts_with`
+- `derived_from` (derived facts only)
 - `notes`
 
 ## Fact Types
@@ -392,7 +394,7 @@ Examples:
 - Announcement date is usually `historical`.
 - Current sales status may be `current` or `possibly_stale`.
 - A claim with conflicting sources should be `disputed`.
-- An imported claim without review should remain in `candidate_facts` with `review_status: needs_review`.
+- An imported claim without review should remain in `candidate_facts` in state `needs_review`.
 
 ## Locale and Region
 

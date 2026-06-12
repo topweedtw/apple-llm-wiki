@@ -96,7 +96,7 @@ Archived Apple source，原始內容由 Apple 發布，但 live URL 已不可用
 
 尚未分類或 review 的來源。
 
-來自 unknown sources 的 claims 應留在 candidate facts，並標記 `review_status: needs_review`。在 review 前不得 promoted to production facts，也不應用於 confident LLM answers。
+來自 unknown sources 的 claims 應留在 candidate facts，state 為 `needs_review`。在 review 前不得 promoted to production facts，也不應用於 confident LLM answers。
 
 ## Source Record Fields
 

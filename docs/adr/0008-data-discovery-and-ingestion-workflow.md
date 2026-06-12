@@ -128,7 +128,7 @@ Candidate extraction outputs:
 - unresolved references
 - issues describing missing evidence, unresolved entities, unnormalized units, or schema problems
 
-LLM-assisted extraction is allowed, but it produces candidate facts only. A candidate fact without evidence may remain in `candidate_facts` with `review_status: needs_review`, or be rejected. It must not be promoted into the production `facts` table.
+LLM-assisted extraction is allowed, but it produces candidate facts only. A candidate fact without evidence may remain in `candidate_facts` in state `needs_review`, or be rejected. It must not be promoted into the production `facts` table.
 
 ## Entity Resolution
 

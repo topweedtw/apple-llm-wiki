@@ -93,7 +93,7 @@ Parser regressions 應在 production ingestion jobs 執行前 fail。
 - `quote` 或 equivalent source span
 - `retrieved_at`
 
-沒有 evidence 的 candidate facts 必須留在 `candidate_facts`，標記 `review_status: needs_review`，或被 rejected。它們不得插入 production `facts` table。
+沒有 evidence 的 candidate facts 必須留在 `candidate_facts`（state 為 `needs_review`），或被 rejected。它們不得插入 production `facts` table。
 
 Evidence quotes 必須在 ADR-003 定義的 300 字元上限內。若 candidate fact 的 quote
 超過上限，會記錄一個 blocking 的 `evidence_quote_too_long` issue，並在解決前
