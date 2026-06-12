@@ -1,5 +1,10 @@
 # Architecture Flow（架構流程）
 
+> **已由 [ADR-023](adr/0023-architecture-re-anchoring-markdown-llm-wiki.zh-TW.md)
+> 與 [ADR-024](adr/0024-technology-stack-re-selection-cloudflare-first.zh-TW.md) 取代。**
+> 本文件描述的是已擱置的 Postgres 結構化 fact 層架構，保留作參考。目前方向為
+> Cloudflare-first 技術棧上的 Markdown LLM-Wiki（見 PRD v0.2）。
+
 本文件摘要說明 ADR 集合所描述的 Apple LLM Wiki 系統架構、開發階段與營運資料流。
 
 ---

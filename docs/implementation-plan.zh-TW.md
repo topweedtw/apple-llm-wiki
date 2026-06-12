@@ -1,5 +1,10 @@
 # Implementation Plan（實作計畫）
 
+> **已由 [ADR-023](adr/0023-architecture-re-anchoring-markdown-llm-wiki.zh-TW.md)
+> 與 [ADR-024](adr/0024-technology-stack-re-selection-cloudflare-first.zh-TW.md) 取代。**
+> 本計畫描述的是已擱置的 Postgres 結構化 fact 層架構，保留作參考。目前方向為
+> Cloudflare-first 技術棧上的 Markdown LLM-Wiki；新的 roadmap 將依 PRD v0.2 §9。
+
 本計畫把 ADR 集合轉成可執行的工程 roadmap。第一個目標不是一次建完整個 Apple LLM Wiki，而是先交付一條正確的 vertical slice：
 
 ```text

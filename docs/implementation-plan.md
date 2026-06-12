@@ -1,5 +1,11 @@
 # Implementation Plan
 
+> **Superseded by [ADR-023](adr/0023-architecture-re-anchoring-markdown-llm-wiki.md)
+> and [ADR-024](adr/0024-technology-stack-re-selection-cloudflare-first.md).**
+> This plan describes the paused Postgres structured fact-layer architecture.
+> It is retained for reference. The current direction is a Markdown LLM-Wiki on
+> a Cloudflare-first stack; a new roadmap will follow PRD v0.2 §9.
+
 This plan turns the ADR set into an executable engineering roadmap. The first
 goal is not to build the entire Apple LLM Wiki at once. The first goal is to
 ship one correct vertical slice:

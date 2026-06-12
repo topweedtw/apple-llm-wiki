@@ -1,5 +1,11 @@
 # Architecture Flow
 
+> **Superseded by [ADR-023](adr/0023-architecture-re-anchoring-markdown-llm-wiki.md)
+> and [ADR-024](adr/0024-technology-stack-re-selection-cloudflare-first.md).**
+> This document describes the paused Postgres structured fact-layer
+> architecture. It is retained for reference. The current direction is a
+> Markdown LLM-Wiki on a Cloudflare-first stack (see PRD v0.2).
+
 This document summarizes the Apple LLM Wiki system architecture, development
 phases, and operational data flow described by the ADR set.
 
