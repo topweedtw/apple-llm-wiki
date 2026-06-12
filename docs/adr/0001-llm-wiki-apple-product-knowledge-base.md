@@ -2,7 +2,11 @@
 
 ## Status
 
-Accepted
+Accepted (Superseded by ADR-023)
+
+> Superseded by [ADR-023](0023-architecture-re-anchoring-markdown-llm-wiki.md).
+> The architecture is re-anchored to a Markdown LLM-Wiki. The fact and citation
+> principles in this ADR are retained as quality guardrails.
 
 ## Date
 

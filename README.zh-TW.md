@@ -8,64 +8,65 @@ English: [README.md](README.md)
 
 ## 現況
 
-Phase 0（專案骨架）已完成。程式碼以「一次做好一條正確的垂直切片」的方式推進，從
-Apple 規格頁 URL 一路到帶引用的答案。完整階段規劃見
-[Implementation Plan](docs/implementation-plan.md)。
+架構已**再定錨為 Markdown LLM-Wiki**
+（[ADR-023](docs/adr/0023-architecture-re-anchoring-markdown-llm-wiki.zh-TW.md)），
+並採 **Cloudflare-first** 技術棧
+（[ADR-024](docs/adr/0024-technology-stack-re-selection-cloudflare-first.zh-TW.md)）。
+
+產品是一個由 LLM 維護、存於 Git 的 Apple 產品知識庫，加上給講師的提取工具
+（考題、影片腳本、銷售腳本）。產品範圍見 `docs/apple-llm-wiki-PRD-v0.2.md`。
+
+先前的 Postgres 結構化 fact 層（ADR-001/017）與已 commit 的 Phase 0 骨架
+**擱置**而非刪除；若未來外部提取 API 需要精確檢索，可能復活當索引後端。
 
 ## 技術棧
 
-選型見 [ADR-017](docs/adr/0017-runtime-and-framework-selection.md)：
+選型見 [ADR-024](docs/adr/0024-technology-stack-re-selection-cloudflare-first.zh-TW.md)
+（Cloudflare-first）：
 
-- Runtime：TypeScript on Node.js 26.x
-- 套件管理：pnpm
-- Web API：Fastify
-- CLI：Commander
-- 驗證：Zod
-- 資料庫：Postgres 17，以 Kysely + `pg` 存取
-- Migration：checked-in SQL，由輕量 TypeScript runner 執行
-- 測試：Vitest
-- Lint/format：Biome
-- HTML 解析（Phase 2 起）：Cheerio，必要時 fallback 到 Playwright
+- 語言：TypeScript on Node.js
+- 前端：Vite + React SPA + Tailwind，部署 Cloudflare Pages
+- 獨立 API：Hono，部署 Cloudflare Workers
+- LLM：Vercel AI SDK（provider 可切換）+ 可選 Cloudflare AI Gateway
+- 認證：Auth0 + GitHub OAuth
+- 排程/重活：GitHub Actions（爬蟲、解析、OCR、ingest agent）
+- Markdown：gray-matter + remark；驗證：Zod
+- 測試/Lint：Vitest + Biome；i18n：react-i18next
+- 儲存：單一私有 GitHub repo（`wiki/`、`raw/`、設定）
+
+從 Phase 0 沿用：TypeScript、pnpm、Vitest、Biome、Zod 與分層抓取策略。
+擱置：Fastify、Kysely、`pg`、Postgres、docker-compose、Commander CLI。
 
 ## 快速開始
 
-前置需求：Node.js 26.x、pnpm，以及 Docker（本機 Postgres 用）。
+Cloudflare-first 的 app 尚未 scaffold。以下指令屬於**擱置中**的 Phase 0 骨架，
+保留作參考：
 
 ```bash
 pnpm install            # 安裝相依套件
-cp .env.example .env    # 本機設定
-pnpm db:up              # 在 Docker 啟動 Postgres 17
-pnpm db:migrate         # 套用 SQL migrations
 pnpm test               # 執行測試
+pnpm typecheck          # TypeScript 型別檢查
+pnpm lint               # Biome lint 與格式檢查
 ```
-
-常用指令：
-
-| 指令 | 用途 |
-| --- | --- |
-| `pnpm dev` | 啟動 Fastify API 並 reload（`GET /health`） |
-| `pnpm cli ping` | 執行 Commander CLI 進入點 |
-| `pnpm typecheck` | TypeScript 型別檢查 |
-| `pnpm lint` | Biome lint 與格式檢查 |
-| `pnpm test` | 執行一次 Vitest |
-| `pnpm db:migrate` | 套用待處理的 SQL migrations |
 
 ## 專案結構
 
+目標結構（ADR-024）：
+
 ```text
-src/
-  api/         Fastify routes 與 HTTP schemas
-  cli/         Commander command 進入點
-  config/      環境變數載入與驗證
-  db/          Kysely client、migration runner、SQL migrations
-  domain/      IDs、enums、errors 與 state-machine types
-  ingestion/   source fetch、snapshot、parse、candidate writers（Phase 2）
-  review/      review decisions 與 promotion rules（Phase 3）
-  retrieval/   entity match、fact lookup、answer context（Phase 4）
-  indexing/    outbox processing、projections、rebuilds（Phase 6）
-test/          Vitest 測試與 fixtures
-docs/          ADR、architecture flow 與 implementation plan
+apps/
+  web/        Vite + React SPA（瀏覽、產生器 UI、上傳）
+  api/        Hono Workers API（產生器、提取、認證、讀 wiki）
+ingest/       GitHub Actions ingestion：爬蟲、解析、改寫 agent、開 PR
+wiki/         LLM 撰寫的 canonical Markdown 知識
+raw/          原始爬取/上傳素材（LLM 只讀）
+packages/     llm provider 抽象、content schema、共用工具
+AGENTS.md     wiki schema 與規則（人類撰寫）
+docs/         ADR、architecture flow、implementation plan、PRD
 ```
+
+目前的 `src/`（api/cli/db/domain/ingestion/…）是擱置中的 Phase 0 Postgres
+骨架，保留作參考。
 
 ## 架構與實作
 
@@ -118,6 +119,10 @@ docs/          ADR、architecture flow 與 implementation plan
   - [繁體中文](docs/adr/0021-predicate-role-and-entity-type-constraints.zh-TW.md)
 - [ADR-022: Entity Seeding and Creation Policy](docs/adr/0022-entity-seeding-and-creation-policy.md)
   - [繁體中文](docs/adr/0022-entity-seeding-and-creation-policy.zh-TW.md)
+- [ADR-023: Architecture Re-Anchoring to a Markdown LLM-Wiki](docs/adr/0023-architecture-re-anchoring-markdown-llm-wiki.md)
+  - [繁體中文](docs/adr/0023-architecture-re-anchoring-markdown-llm-wiki.zh-TW.md)
+- [ADR-024: Technology Stack Re-Selection (Cloudflare-First)](docs/adr/0024-technology-stack-re-selection-cloudflare-first.md)
+  - [繁體中文](docs/adr/0024-technology-stack-re-selection-cloudflare-first.zh-TW.md)
 
 ## ADR 集合
 

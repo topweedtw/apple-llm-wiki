@@ -2,7 +2,10 @@
 
 ## 狀態
 
-Accepted
+Accepted（已由 ADR-024 取代）
+
+> 已由 [ADR-024](0024-technology-stack-re-selection-cloudflare-first.zh-TW.md) 取代。
+> 技術棧重新選型為 Cloudflare-first 的 Markdown LLM-Wiki。
 
 ## 日期
 

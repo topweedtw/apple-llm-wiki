@@ -8,65 +8,68 @@ Traditional Chinese: [README.zh-TW.md](README.zh-TW.md)
 
 ## Status
 
-Phase 0 (project skeleton) is complete. The codebase is being built one correct
-vertical slice at a time, from an Apple specification URL to a cited answer. See
-the [Implementation Plan](docs/implementation-plan.md) for the full phase
-roadmap.
+The architecture has been re-anchored to a **Markdown LLM-Wiki**
+([ADR-023](docs/adr/0023-architecture-re-anchoring-markdown-llm-wiki.md)) with a
+**Cloudflare-first** technology stack
+([ADR-024](docs/adr/0024-technology-stack-re-selection-cloudflare-first.md)).
+
+The product is an LLM-maintained Apple product knowledge base in Git, plus
+extraction tools (question banks, video scripts, sales scripts) for trainers.
+See `docs/apple-llm-wiki-PRD-v0.2.md` for product scope.
+
+The earlier Postgres structured fact layer (ADR-001/017) and its committed
+Phase 0 skeleton are **paused**, not deleted. They may return as an indexing
+backend if a future external extraction API needs precise retrieval.
 
 ## Tech Stack
 
-Selected in [ADR-017](docs/adr/0017-runtime-and-framework-selection.md):
+Selected in [ADR-024](docs/adr/0024-technology-stack-re-selection-cloudflare-first.md)
+(Cloudflare-first):
 
-- Runtime: TypeScript on Node.js 26.x
-- Package manager: pnpm
-- Web API: Fastify
-- CLI: Commander
-- Validation: Zod
-- Database: Postgres 17, accessed with Kysely + `pg`
-- Migrations: checked-in SQL run by a thin TypeScript runner
-- Tests: Vitest
-- Lint/format: Biome
-- HTML parsing (Phase 2+): Cheerio, with Playwright fallback
+- Language: TypeScript on Node.js
+- Front end: Vite + React SPA + Tailwind, on Cloudflare Pages
+- Standalone API: Hono, on Cloudflare Workers
+- LLM: Vercel AI SDK (switchable provider) + optional Cloudflare AI Gateway
+- Auth: Auth0 + GitHub OAuth
+- Scheduling / heavy jobs: GitHub Actions (crawl, parse, OCR, ingest agent)
+- Markdown: gray-matter + remark; Validation: Zod
+- Tests/lint: Vitest + Biome; i18n: react-i18next
+- Storage: single private GitHub repo (`wiki/`, `raw/`, config)
+
+Carried over from Phase 0: TypeScript, pnpm, Vitest, Biome, Zod, and the
+layered fetch strategy. Paused: Fastify, Kysely, `pg`, Postgres, docker-compose,
+Commander CLI.
 
 ## Getting Started
 
-Prerequisites: Node.js 26.x, pnpm, and Docker (for local Postgres).
+The Cloudflare-first apps are not scaffolded yet. The commands below belong to
+the **paused** Phase 0 skeleton and are kept for reference:
 
 ```bash
 pnpm install            # install dependencies
-cp .env.example .env    # local configuration
-pnpm db:up              # start Postgres 17 in Docker
-pnpm db:migrate         # apply SQL migrations
 pnpm test               # run the test suite
+pnpm typecheck          # TypeScript type checking
+pnpm lint               # Biome lint and format check
 ```
-
-Common commands:
-
-| Command | Purpose |
-| --- | --- |
-| `pnpm dev` | run the Fastify API with reload (`GET /health`) |
-| `pnpm cli ping` | run the Commander CLI entrypoint |
-| `pnpm typecheck` | TypeScript type checking |
-| `pnpm lint` | Biome lint and format check |
-| `pnpm test` | run Vitest once |
-| `pnpm db:migrate` | apply pending SQL migrations |
 
 ## Project Structure
 
+Target structure (ADR-024):
+
 ```text
-src/
-  api/         Fastify routes and HTTP schemas
-  cli/         Commander command entrypoints
-  config/      environment loading and validation
-  db/          Kysely client, migration runner, SQL migrations
-  domain/      IDs, enums, errors, and state-machine types
-  ingestion/   source fetch, snapshot, parse, candidate writers (Phase 2)
-  review/      review decisions and promotion rules (Phase 3)
-  retrieval/   entity match, fact lookup, answer context (Phase 4)
-  indexing/    outbox processing, projections, rebuilds (Phase 6)
-test/          Vitest tests and fixtures
-docs/          ADRs, architecture flow, and implementation plan
+apps/
+  web/        Vite + React SPA (browse, generators UI, upload)
+  api/        Hono Workers API (generators, extraction, auth, wiki reads)
+ingest/       GitHub Actions ingestion: crawl, parse, rewrite agent, PR
+wiki/         LLM-authored canonical Markdown knowledge
+raw/          original crawled/uploaded materials (LLM read-only)
+packages/     llm provider abstraction, content schemas, shared utils
+AGENTS.md     wiki schema and rules (human-authored)
+docs/         ADRs, architecture flow, implementation plan, PRD
 ```
+
+The current `src/` tree (api/cli/db/domain/ingestion/...) is the paused Phase 0
+Postgres skeleton, retained for reference.
 
 ## Architecture and Implementation
 
@@ -119,6 +122,10 @@ docs/          ADRs, architecture flow, and implementation plan
   - [繁體中文](docs/adr/0021-predicate-role-and-entity-type-constraints.zh-TW.md)
 - [ADR-022: Entity Seeding and Creation Policy](docs/adr/0022-entity-seeding-and-creation-policy.md)
   - [繁體中文](docs/adr/0022-entity-seeding-and-creation-policy.zh-TW.md)
+- [ADR-023: Architecture Re-Anchoring to a Markdown LLM-Wiki](docs/adr/0023-architecture-re-anchoring-markdown-llm-wiki.md)
+  - [繁體中文](docs/adr/0023-architecture-re-anchoring-markdown-llm-wiki.zh-TW.md)
+- [ADR-024: Technology Stack Re-Selection (Cloudflare-First)](docs/adr/0024-technology-stack-re-selection-cloudflare-first.md)
+  - [繁體中文](docs/adr/0024-technology-stack-re-selection-cloudflare-first.zh-TW.md)
 
 ## ADR Set
 

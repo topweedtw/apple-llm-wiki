@@ -2,7 +2,10 @@
 
 ## 狀態
 
-Accepted
+Accepted（已由 ADR-023 取代）
+
+> 已由 [ADR-023](0023-architecture-re-anchoring-markdown-llm-wiki.zh-TW.md) 取代。
+> 架構再定錨為 Markdown LLM-Wiki。本 ADR 的 fact 與 citation 原則保留為品質護欄。
 
 ## 日期
 

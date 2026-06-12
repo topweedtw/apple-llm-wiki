@@ -2,7 +2,10 @@
 
 ## Status
 
-Accepted
+Accepted (Superseded by ADR-024)
+
+> Superseded by [ADR-024](0024-technology-stack-re-selection-cloudflare-first.md).
+> The technology stack is re-selected for a Cloudflare-first Markdown LLM-Wiki.
 
 ## Date
 

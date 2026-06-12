@@ -52,6 +52,10 @@ English: [README.md](README.md)
   - [繁體中文](0021-predicate-role-and-entity-type-constraints.zh-TW.md)
 - [ADR-022: Entity Seeding and Creation Policy](0022-entity-seeding-and-creation-policy.md)
   - [繁體中文](0022-entity-seeding-and-creation-policy.zh-TW.md)
+- [ADR-023: Architecture Re-Anchoring to a Markdown LLM-Wiki](0023-architecture-re-anchoring-markdown-llm-wiki.md)
+  - [繁體中文](0023-architecture-re-anchoring-markdown-llm-wiki.zh-TW.md)
+- [ADR-024: Technology Stack Re-Selection (Cloudflare-First)](0024-technology-stack-re-selection-cloudflare-first.md)
+  - [繁體中文](0024-technology-stack-re-selection-cloudflare-first.zh-TW.md)
 
 ## ADR 集合
 
