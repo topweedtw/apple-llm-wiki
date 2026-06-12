@@ -122,9 +122,11 @@ re-anchoring does not lose hard-won rigor:
 ## Phase 0 Skeleton Disposition
 
 The committed Phase 0 skeleton (Postgres, Fastify, Kysely, Commander CLI,
-docker-compose) is paused, not removed. It may be revived as an indexing/query
-backend if a future external extraction API needs precise retrieval. ADR-024
-defines what is reused (TypeScript, pnpm, Vitest, Biome, Zod) and what is shelved.
+docker-compose) has been **removed from `main`** and preserved at tag
+`v1-postgres-architecture` and branch `archive/postgres-fact-layer`. It may be
+revived from there as an indexing/query backend if a future external extraction
+API needs precise retrieval. ADR-024 defines what is reused (TypeScript, pnpm,
+Vitest, Biome, Zod) and what is shelved.
 
 ## Consequences
 

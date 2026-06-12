@@ -107,9 +107,10 @@ ADR 不逐份原地改寫。本 ADR 是每份 ADR 新狀態的單一紀錄。狀
 ## Phase 0 骨架處置
 
 已 commit 的 Phase 0 骨架(Postgres、Fastify、Kysely、Commander CLI、
-docker-compose)**擱置而非移除**。若未來外部提取 API 需要精確檢索,它可能復活當
-索引/查詢後端。ADR-024 定義哪些沿用(TypeScript、pnpm、Vitest、Biome、Zod)、
-哪些擱置。
+docker-compose)**已從 `main` 移除**,並保存於 tag `v1-postgres-architecture`
+與分支 `archive/postgres-fact-layer`。若未來外部提取 API 需要精確檢索,可從那裡
+復活當索引/查詢後端。ADR-024 定義哪些沿用(TypeScript、pnpm、Vitest、Biome、
+Zod)、哪些擱置。
 
 ## 影響
 
