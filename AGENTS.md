@@ -9,7 +9,7 @@ humans and read by LLM agents. It defines how agents ingest sources and write
 wiki pages. Architecture and stack are defined in
 [ADR-023](docs/adr/0023-architecture-re-anchoring-markdown-llm-wiki.md) and
 [ADR-024](docs/adr/0024-technology-stack-re-selection-cloudflare-first.md);
-product scope is in `docs/apple-llm-wiki-PRD-v0.2.md`.
+product scope is in `docs/apple-llm-wiki-PRD-v0.3.md`.
 
 ---
 

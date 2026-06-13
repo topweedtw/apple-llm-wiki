@@ -15,7 +15,7 @@ The architecture has been re-anchored to a **Markdown LLM-Wiki**
 
 The product is an LLM-maintained Apple product knowledge base in Git, plus
 extraction tools (question banks, video scripts, sales scripts) for trainers.
-See `docs/apple-llm-wiki-PRD-v0.2.md` for product scope.
+See `docs/apple-llm-wiki-PRD-v0.3.md` for product scope.
 
 The earlier Postgres structured fact layer (ADR-001/017) and its committed
 Phase 0 skeleton are **paused**, not deleted. They may return as an indexing

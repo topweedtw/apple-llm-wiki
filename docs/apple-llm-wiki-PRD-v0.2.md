@@ -1,5 +1,9 @@
 # PRD — Apple 產品知識 LLM-Wiki 平台
 
+> **已由 v0.3 取代** — 見 [apple-llm-wiki-PRD-v0.3.md](apple-llm-wiki-PRD-v0.3.md)。
+> 本版（雙 repo + Next.js/Vercel 假設）保留作歷史；目前架構與技術棧以 v0.3、
+> ADR-023、ADR-024 為準。
+
 **文件版本**：v0.2
 **作者**：Willer（企業講師）
 **最後更新**：2026-06-12

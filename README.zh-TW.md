@@ -14,7 +14,7 @@ English: [README.md](README.md)
 （[ADR-024](docs/adr/0024-technology-stack-re-selection-cloudflare-first.zh-TW.md)）。
 
 產品是一個由 LLM 維護、存於 Git 的 Apple 產品知識庫，加上給講師的提取工具
-（考題、影片腳本、銷售腳本）。產品範圍見 `docs/apple-llm-wiki-PRD-v0.2.md`。
+（考題、影片腳本、銷售腳本）。產品範圍見 `docs/apple-llm-wiki-PRD-v0.3.md`。
 
 先前的 Postgres 結構化 fact 層（ADR-001/017）與已 commit 的 Phase 0 骨架
 **擱置**而非刪除；若未來外部提取 API 需要精確檢索，可能復活當索引後端。
