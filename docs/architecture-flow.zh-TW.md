@@ -1,321 +1,130 @@
 # Architecture Flow（架構流程）
 
-> **已由 [ADR-023](adr/0023-architecture-re-anchoring-markdown-llm-wiki.zh-TW.md)
-> 與 [ADR-024](adr/0024-technology-stack-re-selection-cloudflare-first.zh-TW.md) 取代。**
-> 本文件描述的是已擱置的 Postgres 結構化 fact 層架構，保留作參考。目前方向為
-> Cloudflare-first 技術棧上的 Markdown LLM-Wiki（見 PRD v0.2）。
+本文件說明 Apple Training Wiki 目前的運作方式：資料怎麼進來、怎麼被整理、最後怎麼
+變成教學素材。內容對齊 Markdown LLM-Wiki 架構
+（[ADR-023](adr/0023-architecture-re-anchoring-markdown-llm-wiki.zh-TW.md)）、
+Cloudflare-first 技術棧
+（[ADR-024](adr/0024-technology-stack-re-selection-cloudflare-first.zh-TW.md)）、
+PRD v0.3，以及 repo 根的 wiki schema [`/AGENTS.md`](../AGENTS.md)。
 
-本文件摘要說明 ADR 集合所描述的 Apple LLM Wiki 系統架構、開發階段與營運資料流。
+English: [architecture-flow.md](architecture-flow.md)
 
 ---
 
-## System Architecture
+## 1. 開發 / 系統運作流程（技術視角）
 
-完整系統架構，從 source discovery 到 content generation。
+從來源到使用者，各元件怎麼協作、誰在哪裡執行。
 
-```text
-+----------------------+
-| Source Discovery     |
-| Apple / archive /    |
-| secondary / retailer |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Candidate Source     |
-| Queue                |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Fetch + Snapshot     |
-| HTTP first, browser  |
-| fallback, checksum   |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Source Registry      |
-| trust_level, scope,  |
-| locale, review state |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Extraction Layer     |
-| parser first, LLM    |
-| assisted if needed   |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Staging              |
-| candidate_facts      |
-| entity references    |
-| evidence anchors     |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Validation + Review  |
-| schema, evidence,    |
-| entity resolution,   |
-| conflicts, freshness |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| System of Record     |
-| Postgres             |
-| sources              |
-| entities             |
-| facts                |
-| evidence             |
-| pages (Phase 8)      |
-| reviews/jobs         |
-+----+------+-----+----+
-     |      |     |
-     |      |     v
-     |      |  +------------------+
-     |      |  | Freshness Jobs   |
-     |      |  | TTL/checksum/    |
-     |      |  | re-ingestion     |
-     |      |  +------------------+
-     |      |
-     |      v
-     |  +------------------+
-     |  | Wiki Pages       |
-     |  | human-readable   |
-     |  | curated context  |
-     |  +------------------+
-     |
-     v
-+----------------------+
-| Retrieval Indexes    |
-| entity, fact, graph, |
-| keyword, vector,     |
-| evidence             |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Retrieval Planner    |
-| intent, entity match,|
-| fact lookup, graph,  |
-| ranking, context     |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| LLM Answer Layer     |
-| cited answers,       |
-| freshness warnings,  |
-| conflict handling    |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Content Generation   |
-| question banks,      |
-| video/retail/FABE    |
-| scripts with claims  |
-+----------------------+
+```mermaid
+flowchart TD
+    subgraph SRC["來源"]
+        A1["Apple 官網<br/>apple.com / support / newsroom / developer"]
+        A2["維護者上傳教材<br/>PDF / PPTX / DOCX"]
+    end
+
+    subgraph GHA["GitHub Actions（重活都在這）"]
+        B1["排程爬蟲（每週一）<br/>HTTP → Playwright 後備"]
+        B2["相關性過濾 + Tier 檢查<br/>T4 攔截"]
+        B3["LLM Ingest Agent<br/>二創改寫 · 雙語 · footnote"]
+        B4["Octokit 開 PR"]
+    end
+
+    subgraph REPO["單一私有 GitHub Repo"]
+        C1["raw/（LLM 只讀）"]
+        C2["wiki/（canonical，LLM 寫）"]
+        C3["AGENTS.md（schema）"]
+    end
+
+    REV{"人類審核 PR<br/>GitHub Web + CI lint"}
+
+    subgraph CF["Cloudflare"]
+        D1["Hono API（Workers）<br/>讀 wiki + 呼叫 LLM<br/>（Vercel AI SDK / AI Gateway）"]
+        D2["前端 Vite+React SPA（Pages）<br/>Auth0 登入"]
+    end
+
+    U["講師（使用者）"]
+
+    A1 --> B1 --> C1
+    A2 --> C1
+    C1 --> B2 --> B3 --> B4 --> REV
+    C3 -. 規則約束 .-> B3
+    REV -->|merge| C2
+    REV -->|退回 / NEEDS REVIEW| B3
+    C2 --> D1 --> D2 --> U
+    U -->|產出請求| D2
 ```
 
+重點：
+
+- LLM 只能透過 **PR + 人類審核**寫進 wiki，不會直接 commit 到主分支。
+- 重活（爬蟲、解析、OCR、LLM 改寫）都在 **GitHub Actions**；Cloudflare 只跑即時
+  API 與前端。
+- `AGENTS.md` 約束 ingest agent 的行為。
+
 ---
 
-## Development Phases
+## 2. 使用者視角的資料旅程（來 → 整理 → 輸出）
 
-每個 phase 都建立在前一個 phase 之上。第一個目標是一條正確的 vertical slice，從 source URL 到 cited answer。
+同一條流程，從講師/維護者角度看：wiki 裡的資料怎麼來、怎麼被整理、最後怎麼變成教材。
 
-```text
-Phase 0: Project Skeleton
-  - TypeScript / Node.js / pnpm scaffold
-  - Postgres migration setup
-  - Vitest test runner + fixture directory
-  - Coding conventions for IDs, enums, timestamps
-  EXIT: migrations run locally, tests run in CI
+```mermaid
+flowchart TD
+    subgraph S1["① 資料怎麼來"]
+        I1["自動爬取 Apple 官網"]
+        I2["手動上傳教材<br/>（必填版權狀態勾選）"]
+        RAW["raw/ 原始素材<br/>只存私有、不對外"]
+    end
 
-Phase 1: Canonical Data Model          (ADR-003, 006, 013, 014, 020, 021)
-  Tables:
-    sources            source_snapshots   evidence
-    entities           entity_aliases
-    candidate_sources  candidate_facts    candidate_fact_issues
-    facts              fact_supersession
-    review_decisions   publication_events
-    unit_registry      predicate_registry
-    index_outbox
-  EXIT: schema tests enforce evidence requirement + no needs_review on production facts
+    subgraph S2["② 怎麼被整理"]
+        F1["相關性過濾<br/>T1 直通 / T2 評分 / T4 禁止"]
+        F2["LLM 二創改寫<br/>不複製原文"]
+        F3["雙語同步 + 每個事實附 footnote 出處"]
+        F4{"人類審核 PR"}
+        WIKI["wiki/ canonical 知識<br/>單一事實來源 (SSoT)"]
+    end
 
-Phase 2: Ingestion Pipeline MVP        (ADR-008, 009, 010, 011, 018, 022)
-  Precondition: canonical entities seeded per ADR-022
-  Services:
-    SourceRegistrationService   SourceFetcher       SnapshotStore
-    SourceClassifier            TechSpecParser
-    CandidateFactWriter         CandidateValidationService
-  EXIT: fixture snapshot -> candidate facts + evidence, parser golden tests pass
+    subgraph S3["③ 怎麼輸出"]
+        O1["講師在前端選<br/>類型 / 主題 / 語系 / 參數"]
+        O2["API 讀 wiki + LLM 生成"]
+        O3["考題 / 影片腳本 / 銷售腳本<br/>含出處連結 + Disclaimer"]
+    end
 
-Phase 3: Review and Promotion          (ADR-014, 018, 019, 021)
-  Services:
-    ReviewDecisionService   CandidateIssueService   FactPromotionService
-    PublicationAuditService IndexOutboxWriter        ReviewCommandService
-  EXIT: promotion passes with evidence, fails without; outbox emits in same transaction
-
-Phase 4: Retrieval MVP                 (ADR-005, 018)
-  Services:
-    EntityMatcher         EntityResolutionService   FactLookupService
-    EvidenceHydrationService   FreshnessPolicyService   AnswerContextBuilder
-  EXIT: exact queries return production facts only, evidence from canonical records
-
-Phase 5: Cited Answer API              (ADR-007)
-  Endpoint: POST /answer
-  EXIT: response includes fact + evidence citations; unsupported claims refused
-
-Phase 6: Index Outbox and Derived Views  (ADR-013, 015)
-  Commands:
-    index process   index rebuild   index check-drift
-  EXIT: outbox idempotent, projections rebuildable, drift detectable
-
-Phase 7: Freshness and Re-ingestion    (ADR-006)
-  Jobs:
-    TTL expiry job   source checksum job   re-ingestion diff
-  EXIT: TTL marks current -> possibly_stale; stale answers surface warning
-
-Phase 8: Page and Content Generation   (ADR-012)
-  Outputs:
-    wiki pages   question banks   FABE scripts   retail/video scripts
-  EXIT: all factual claims traceable to production facts; generated content stays outside fact layer
+    I1 --> RAW
+    I2 --> RAW
+    RAW --> F1 --> F2 --> F3 --> F4
+    F4 -->|核准 merge| WIKI
+    F4 -->|退回 / 標 NEEDS REVIEW·CONFLICT| F2
+    WIKI --> O1 --> O2 --> O3
 ```
 
----
+重點：
 
-## Operational Data Flow
-
-這個 flow 呈現從 raw source 到 cited answer 的完整路徑，包含 human review decision points。
-
-```text
-[Source Discovery]
-  Apple official / archive / secondary / retailer
-         |
-         |  CLI: source register
-         v
-[Candidate Source Queue]
-  status: discovered -> pending_fetch
-         |
-         |  CLI: source fetch
-         v
-[Fetch + Snapshot]
-  HTTP fetch (undici/fetch) -> Playwright fallback
-  stores: raw HTML, checksum, locale, parser version
-         |
-         v
-[Source Classification]        (ADR-004)
-  trust_level, source_type, scope, locale
-         |
-         |  CLI: review source approve / reject    <- Reviewer
-         v
-[Extraction Layer]             (ADR-010)
-  TechSpecParser (Cheerio) -> LLM-assisted fallback
-         |
-         v
-[Staging]
-  candidate_facts, entity references, evidence anchors
-         |
-         v
-[Candidate Intake Validation]  (ADR-008, 011, 016, 020, 021)
-  - predicate allowed?
-  - value type matches predicate?
-  - unit in registry, or unnormalized_unit issue recorded?
-  - evidence attached, or missing_evidence issue recorded?
-  - entity resolution attempted?
-         |
-         +-- score >= 0.95 -----------> [auto-resolved entity]
-         |
-         +-- score < 0.70 or no entity --> [unresolved]
-         |                                    |
-         |                                    v
-         |                            CLI: review entity choose
-         |                            <- Reviewer (required)
-         |
-         +-- 0.70 <= score < 0.95 ----> [needs_review: entity]
-         |                                    |
-         |                             CLI: review entity approve/choose
-         |                             <- Reviewer
-         |
-         +-- blocking issues ----------> [blocked]
-         |                                    |
-         |                             CLI: review issue resolve
-         |                             <- Reviewer
-         |                                    |
-         +------------------------------------+
-         |
-         v
-[needs_review: candidate fact]
-  shows: source, snapshot, evidence quote, entity resolution,
-         predicate preview, conflicts, proposed fact
-         |
-         |  CLI: review fact approve / reject    <- Reviewer
-         v
-[approved]
-         |
-         |  CLI: fact promote [--dry-run]        <- Reviewer
-         v
-[Promotion Validation]         (ADR-014, 016, 018, 021)
-  - all blocking issues resolved?
-  - entity types match predicate roles?
-  - unit is active registry unit?
-  - source_refs point to evidence?
-  - freshness and confidence assigned?
-         |
-         v  (in one DB transaction)
-+------------------------+
-| System of Record       |
-| Postgres               |
-| facts + evidence       |
-| publication_events     |
-| index_outbox events    |
-+----+-------+------+----+
-     |       |      |
-     v       v      v
-[index_   [Wiki   [Freshness
- outbox]   Pages]  Jobs]
-     |               |
-     v               v
-[Index        TTL expires?
- Workers]     checksum change?
-     |               |
-     v               v
-[Retrieval      [possibly_stale]
- Indexes]        -> review queue
-     |
-     v
-[Retrieval Planner]
-  intent detection, entity match,
-  fact lookup, graph traversal,
-  trust + freshness ranking
-     |
-     v
-[LLM Answer Layer]            (ADR-007)
-  hydrate facts from Postgres
-  cited answers, freshness warnings,
-  conflict surfacing
-     |
-     v
-[Content Generation]          (ADR-012)
-  question banks, FABE scripts,
-  retail/video scripts
-  claim-level traceability enforced
-```
+- 原始素材永遠留在 `raw/`（私有）；wiki 只放二創後、經人類核准的 canonical 知識。
+- 每筆事實主張都附 footnote，因此每個輸出都能沿出處追回來源。
+- 每個輸出自動帶上 `wiki/DISCLAIMER.md` 的免責聲明。
 
 ---
 
-## Key Invariants
+## 3. 關鍵不變量
 
-這些 invariants 在所有 phases 與 operations 中都成立。
+整條流程都遵守：
 
-- Production facts 是唯一 canonical answerable claims。
-- Candidate fact 沒有 evidence 時不得 promotion。
-- Entity resolution 必須在 promotion 前完成。
-- LLM answer layer 從 Postgres hydrate facts，而不是從 index payloads hydrate。
-- Derived views（indexes、pages、projections）永遠可以從 canonical records rebuild。
-- `needs_review` 不得出現在 production fact 或 production entity record。
+- 知識只能透過人類審核的 pull request 進入 wiki。
+- `raw/` 對 LLM 唯讀；LLM 不編輯它。
+- wiki 是單一事實來源（Git Markdown）；沒有另一個資料庫真相來源。
+- T4 來源（爆料、傳聞）在爬蟲層被攔截。
+- 存疑或衝突內容標 `NEEDS REVIEW` / `CONFLICT` 交人類，不會悄悄發布。
+- 重活在 GitHub Actions；Cloudflare 只跑 API 與 SPA。
+
+---
+
+## 4. 元件職責對照
+
+| 元件 | 在哪執行 | 職責 |
+| --- | --- | --- |
+| 排程爬蟲 + ingest agent | GitHub Actions | 抓取、解析、OCR、相關性/tier 檢查、LLM 改寫、開 PR |
+| 單一私有 repo | GitHub | `raw/`、`wiki/`、`AGENTS.md`、`docs/`、`apps/`、設定 |
+| 人類維護者 | GitHub Web | 審核並合併 PR |
+| Hono API | Cloudflare Workers | 讀 wiki、產出器、提取、LLM 呼叫、認證驗證 |
+| 前端 SPA | Cloudflare Pages | 瀏覽、產出工具 UI、上傳、Auth0 登入 |
+| LLM | 經 Vercel AI SDK / Cloudflare AI Gateway | ingest 改寫 + 輸出生成（provider 可切換） |

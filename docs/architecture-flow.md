@@ -1,325 +1,135 @@
 # Architecture Flow
 
-> **Superseded by [ADR-023](adr/0023-architecture-re-anchoring-markdown-llm-wiki.md)
-> and [ADR-024](adr/0024-technology-stack-re-selection-cloudflare-first.md).**
-> This document describes the paused Postgres structured fact-layer
-> architecture. It is retained for reference. The current direction is a
-> Markdown LLM-Wiki on a Cloudflare-first stack (see PRD v0.2).
+This document shows how the Apple Training Wiki works today: how data enters,
+how it is curated, and how it is turned into teaching materials. It reflects the
+Markdown LLM-Wiki architecture ([ADR-023](adr/0023-architecture-re-anchoring-markdown-llm-wiki.md)),
+the Cloudflare-first stack ([ADR-024](adr/0024-technology-stack-re-selection-cloudflare-first.md)),
+PRD v0.3, and the wiki schema in [`/AGENTS.md`](../AGENTS.md).
 
-This document summarizes the Apple LLM Wiki system architecture, development
-phases, and operational data flow described by the ADR set.
+Traditional Chinese: [architecture-flow.zh-TW.md](architecture-flow.zh-TW.md)
 
 ---
 
-## System Architecture
+## 1. Development / System Flow (technical view)
 
-The full system architecture from source discovery to content generation.
+How components collaborate from source to user, and where each runs.
 
-```text
-+----------------------+
-| Source Discovery     |
-| Apple / archive /    |
-| secondary / retailer |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Candidate Source     |
-| Queue                |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Fetch + Snapshot     |
-| HTTP first, browser  |
-| fallback, checksum   |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Source Registry      |
-| trust_level, scope,  |
-| locale, review state |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Extraction Layer     |
-| parser first, LLM    |
-| assisted if needed   |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Staging              |
-| candidate_facts      |
-| entity references    |
-| evidence anchors     |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Validation + Review  |
-| schema, evidence,    |
-| entity resolution,   |
-| conflicts, freshness |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| System of Record     |
-| Postgres             |
-| sources              |
-| entities             |
-| facts                |
-| evidence             |
-| pages (Phase 8)      |
-| reviews/jobs         |
-+----+------+-----+----+
-     |      |     |
-     |      |     v
-     |      |  +------------------+
-     |      |  | Freshness Jobs   |
-     |      |  | TTL/checksum/    |
-     |      |  | re-ingestion     |
-     |      |  +------------------+
-     |      |
-     |      v
-     |  +------------------+
-     |  | Wiki Pages       |
-     |  | human-readable   |
-     |  | curated context  |
-     |  +------------------+
-     |
-     v
-+----------------------+
-| Retrieval Indexes    |
-| entity, fact, graph, |
-| keyword, vector,     |
-| evidence             |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Retrieval Planner    |
-| intent, entity match,|
-| fact lookup, graph,  |
-| ranking, context     |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| LLM Answer Layer     |
-| cited answers,       |
-| freshness warnings,  |
-| conflict handling    |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Content Generation   |
-| question banks,      |
-| video/retail/FABE    |
-| scripts with claims  |
-+----------------------+
+```mermaid
+flowchart TD
+    subgraph SRC["Sources"]
+        A1["Apple official sites<br/>apple.com / support / newsroom / developer"]
+        A2["Maintainer uploads<br/>PDF / PPTX / DOCX"]
+    end
+
+    subgraph GHA["GitHub Actions (all heavy work)"]
+        B1["Scheduled crawl (weekly)<br/>HTTP → Playwright fallback"]
+        B2["Relevance gate + tier check<br/>T4 blocked"]
+        B3["LLM ingest agent<br/>rewrite (original wording) · bilingual · footnotes"]
+        B4["Open PR via Octokit"]
+    end
+
+    subgraph REPO["Single private GitHub repo"]
+        C1["raw/ (LLM read-only)"]
+        C2["wiki/ (canonical, LLM writes)"]
+        C3["AGENTS.md (schema)"]
+    end
+
+    REV{"Human PR review<br/>GitHub web + CI lint"}
+
+    subgraph CF["Cloudflare"]
+        D1["Hono API (Workers)<br/>reads wiki + calls LLM<br/>(Vercel AI SDK / AI Gateway)"]
+        D2["Vite+React SPA (Pages)<br/>Auth0 login"]
+    end
+
+    U["Trainer (user)"]
+
+    A1 --> B1 --> C1
+    A2 --> C1
+    C1 --> B2 --> B3 --> B4 --> REV
+    C3 -. rules .-> B3
+    REV -->|merge| C2
+    REV -->|reject / NEEDS REVIEW| B3
+    C2 --> D1 --> D2 --> U
+    U -->|generation request| D2
 ```
 
+Key points:
+
+- The LLM can only write into the wiki through a **pull request reviewed and
+  merged by a human**. It never commits to the default branch.
+- All heavy work (crawl, parse, OCR, LLM rewrite) runs in **GitHub Actions**.
+  Cloudflare only runs the real-time API and the front end.
+- `AGENTS.md` constrains the ingest agent's behavior.
+
 ---
 
-## Development Phases
+## 2. User-View Data Journey (in → curated → out)
 
-Each phase builds on the previous one. The first goal is a single correct
-vertical slice from a source URL to a cited answer.
+The same flow from a trainer/maintainer's perspective: where wiki data comes
+from, how it is curated, and how it becomes teaching material.
 
-```text
-Phase 0: Project Skeleton
-  - TypeScript / Node.js / pnpm scaffold
-  - Postgres migration setup
-  - Vitest test runner + fixture directory
-  - Coding conventions for IDs, enums, timestamps
-  EXIT: migrations run locally, tests run in CI
+```mermaid
+flowchart TD
+    subgraph S1["1. Where data comes from"]
+        I1["Automated crawl of Apple sites"]
+        I2["Manual upload<br/>(copyright status required)"]
+        RAW["raw/ original materials<br/>private only, never published"]
+    end
 
-Phase 1: Canonical Data Model          (ADR-003, 006, 013, 014, 020, 021)
-  Tables:
-    sources            source_snapshots   evidence
-    entities           entity_aliases
-    candidate_sources  candidate_facts    candidate_fact_issues
-    facts              fact_supersession
-    review_decisions   publication_events
-    unit_registry      predicate_registry
-    index_outbox
-  EXIT: schema tests enforce evidence requirement + no needs_review on production facts
+    subgraph S2["2. How it is curated"]
+        F1["Relevance gate<br/>T1 pass / T2 scored / T4 blocked"]
+        F2["LLM rewrite (original wording)<br/>never copy source prose"]
+        F3["Bilingual sync + per-claim footnotes"]
+        F4{"Human PR review"}
+        WIKI["wiki/ canonical knowledge<br/>single source of truth"]
+    end
 
-Phase 2: Ingestion Pipeline MVP        (ADR-008, 009, 010, 011, 018, 022)
-  Precondition: canonical entities seeded per ADR-022
-  Services:
-    SourceRegistrationService   SourceFetcher       SnapshotStore
-    SourceClassifier            TechSpecParser
-    CandidateFactWriter         CandidateValidationService
-  EXIT: fixture snapshot -> candidate facts + evidence, parser golden tests pass
+    subgraph S3["3. How it is exported"]
+        O1["Trainer picks<br/>type / topic / language / params"]
+        O2["API reads wiki + LLM generates"]
+        O3["Question bank / video / sales script<br/>with citations + disclaimer"]
+    end
 
-Phase 3: Review and Promotion          (ADR-014, 018, 019, 021)
-  Services:
-    ReviewDecisionService   CandidateIssueService   FactPromotionService
-    PublicationAuditService IndexOutboxWriter        ReviewCommandService
-  EXIT: promotion passes with evidence, fails without; outbox emits in same transaction
-
-Phase 4: Retrieval MVP                 (ADR-005, 018)
-  Services:
-    EntityMatcher         EntityResolutionService   FactLookupService
-    EvidenceHydrationService   FreshnessPolicyService   AnswerContextBuilder
-  EXIT: exact queries return production facts only, evidence from canonical records
-
-Phase 5: Cited Answer API              (ADR-007)
-  Endpoint: POST /answer
-  EXIT: response includes fact + evidence citations; unsupported claims refused
-
-Phase 6: Index Outbox and Derived Views  (ADR-013, 015)
-  Commands:
-    index process   index rebuild   index check-drift
-  EXIT: outbox idempotent, projections rebuildable, drift detectable
-
-Phase 7: Freshness and Re-ingestion    (ADR-006)
-  Jobs:
-    TTL expiry job   source checksum job   re-ingestion diff
-  EXIT: TTL marks current -> possibly_stale; stale answers surface warning
-
-Phase 8: Page and Content Generation   (ADR-012)
-  Outputs:
-    wiki pages   question banks   FABE scripts   retail/video scripts
-  EXIT: all factual claims traceable to production facts; generated content stays outside fact layer
+    I1 --> RAW
+    I2 --> RAW
+    RAW --> F1 --> F2 --> F3 --> F4
+    F4 -->|approve & merge| WIKI
+    F4 -->|reject / mark NEEDS REVIEW·CONFLICT| F2
+    WIKI --> O1 --> O2 --> O3
 ```
 
----
+Key points:
 
-## Operational Data Flow
-
-This flow shows the full path from raw source to cited answer, including human
-review decision points.
-
-```text
-[Source Discovery]
-  Apple official / archive / secondary / retailer
-         |
-         |  CLI: source register
-         v
-[Candidate Source Queue]
-  status: discovered -> pending_fetch
-         |
-         |  CLI: source fetch
-         v
-[Fetch + Snapshot]
-  HTTP fetch (undici/fetch) -> Playwright fallback
-  stores: raw HTML, checksum, locale, parser version
-         |
-         v
-[Source Classification]        (ADR-004)
-  trust_level, source_type, scope, locale
-         |
-         |  CLI: review source approve / reject    <- Reviewer
-         v
-[Extraction Layer]             (ADR-010)
-  TechSpecParser (Cheerio) -> LLM-assisted fallback
-         |
-         v
-[Staging]
-  candidate_facts, entity references, evidence anchors
-         |
-         v
-[Candidate Intake Validation]  (ADR-008, 011, 016, 020, 021)
-  - predicate allowed?
-  - value type matches predicate?
-  - unit in registry, or unnormalized_unit issue recorded?
-  - evidence attached, or missing_evidence issue recorded?
-  - entity resolution attempted?
-         |
-         +-- score >= 0.95 -----------> [auto-resolved entity]
-         |
-         +-- score < 0.70 or no entity --> [unresolved]
-         |                                    |
-         |                                    v
-         |                            CLI: review entity choose
-         |                            <- Reviewer (required)
-         |
-         +-- 0.70 <= score < 0.95 ----> [needs_review: entity]
-         |                                    |
-         |                             CLI: review entity approve/choose
-         |                             <- Reviewer
-         |
-         +-- blocking issues ----------> [blocked]
-         |                                    |
-         |                             CLI: review issue resolve
-         |                             <- Reviewer
-         |                                    |
-         +------------------------------------+
-         |
-         v
-[needs_review: candidate fact]
-  shows: source, snapshot, evidence quote, entity resolution,
-         predicate preview, conflicts, proposed fact
-         |
-         |  CLI: review fact approve / reject    <- Reviewer
-         v
-[approved]
-         |
-         |  CLI: fact promote [--dry-run]        <- Reviewer
-         v
-[Promotion Validation]         (ADR-014, 016, 018, 021)
-  - all blocking issues resolved?
-  - entity types match predicate roles?
-  - unit is active registry unit?
-  - source_refs point to evidence?
-  - freshness and confidence assigned?
-         |
-         v  (in one DB transaction)
-+------------------------+
-| System of Record       |
-| Postgres               |
-| facts + evidence       |
-| publication_events     |
-| index_outbox events    |
-+----+-------+------+----+
-     |       |      |
-     v       v      v
-[index_   [Wiki   [Freshness
- outbox]   Pages]  Jobs]
-     |               |
-     v               v
-[Index        TTL expires?
- Workers]     checksum change?
-     |               |
-     v               v
-[Retrieval      [possibly_stale]
- Indexes]        -> review queue
-     |
-     v
-[Retrieval Planner]
-  intent detection, entity match,
-  fact lookup, graph traversal,
-  trust + freshness ranking
-     |
-     v
-[LLM Answer Layer]            (ADR-007)
-  hydrate facts from Postgres
-  cited answers, freshness warnings,
-  conflict surfacing
-     |
-     v
-[Content Generation]          (ADR-012)
-  question banks, FABE scripts,
-  retail/video scripts
-  claim-level traceability enforced
-```
+- Original source material always stays in `raw/` (private). The wiki holds only
+  rewritten, human-approved canonical knowledge.
+- Every factual claim carries a footnote, so each output can be traced back to
+  its source.
+- Every export automatically includes the disclaimer from `wiki/DISCLAIMER.md`.
 
 ---
 
-## Key Invariants
+## 3. Key Invariants
 
-These hold throughout all phases and operations.
+These hold throughout the flow:
 
-- Production facts are the only canonical answerable claims.
-- A candidate fact cannot be promoted without evidence.
-- Entity resolution must be final before promotion.
-- The LLM answer layer hydrates facts from Postgres, not from index payloads.
-- Derived views (indexes, pages, projections) are always rebuildable from canonical records.
-- `needs_review` never appears on a production fact or production entity record.
+- Knowledge enters the wiki only via human-reviewed pull requests.
+- `raw/` is LLM read-only; the LLM never edits it.
+- The wiki is the single source of truth (Git Markdown); there is no separate
+  database of record.
+- T4 sources (leaks, rumors) are blocked at the crawl layer.
+- Uncertain or conflicting content is marked `NEEDS REVIEW` / `CONFLICT` and
+  routed to a human, never silently published.
+- Heavy work runs in GitHub Actions; Cloudflare runs only the API and SPA.
+
+---
+
+## 4. Component Responsibilities
+
+| Component | Where it runs | Responsibility |
+| --- | --- | --- |
+| Scheduled crawl + ingest agent | GitHub Actions | fetch, parse, OCR, relevance/tier check, LLM rewrite, open PR |
+| Single private repo | GitHub | `raw/`, `wiki/`, `AGENTS.md`, `docs/`, `apps/`, config |
+| Human maintainers | GitHub web | review and merge PRs |
+| Hono API | Cloudflare Workers | read wiki, generators, extraction, LLM calls, auth verification |
+| Front-end SPA | Cloudflare Pages | browse, generator UI, upload, Auth0 login |
+| LLM | via Vercel AI SDK / Cloudflare AI Gateway | ingest rewrite + output generation (switchable provider) |
