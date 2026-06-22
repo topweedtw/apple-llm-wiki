@@ -26,6 +26,9 @@ importers:
       hono:
         specifier: ^4.12.26
         version: 4.12.26
+      jose:
+        specifier: ^6.2.3
+        version: 6.2.3
 
   apps/web: {}
 
@@ -445,6 +448,9 @@ packages:
   hono@4.12.26:
     resolution: {integrity: sha512-uyZtpnYxM9CmQ7QsQknM4zN8EftNqhON1qYeIKM0Se67CCEe2c44xyGURwB0axX2fBDu1dqHrHAc1hmNT8ITkw==}
     engines: {node: '>=16.9.0'}
+
+  jose@6.2.3:
+    resolution: {integrity: sha512-YYVDInQKFJfR/xa3ojUTl8c2KoTwiL1R5Wg9YCydwH0x0B9grbzlg5HC7mMjCtUJjbQ/YnGEZIhI5tCgfTb4Hw==}
 
   loupe@3.2.1:
     resolution: {integrity: sha512-CdzqowRJCeLU72bHvWqwRBBlLcMEtIvGrlvef74kMnV2AolS9Y8xUv1I0U/MNAWMhBlKIoyuEgoJ0t/bbwHbLQ==}
@@ -871,6 +877,8 @@ snapshots:
     optional: true
 
   hono@4.12.26: {}
+
+  jose@6.2.3: {}
 
   loupe@3.2.1: {}
 
