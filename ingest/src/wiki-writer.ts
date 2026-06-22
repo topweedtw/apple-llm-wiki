@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { parseWikiPage } from '@apple-llm-wiki/content';
 
 export type WikiIndexEntry = {
   title: string;
@@ -10,6 +11,13 @@ export type WikiLogEntry = {
   action: 'create' | 'update';
   page: string;
   sourceRefs: string[];
+  timestamp: string;
+};
+
+export type WikiPageWrite = {
+  action: WikiLogEntry['action'];
+  markdown: string;
+  path: string;
   timestamp: string;
 };
 
@@ -29,6 +37,12 @@ function formatIndexEntry(entry: WikiIndexEntry) {
   return `- [${entry.title}](${entry.path})`;
 }
 
+function assertSourceRefs(sourceRefs: string[]) {
+  if (sourceRefs.length === 0) {
+    throw new Error('source_refs must contain at least one raw source reference');
+  }
+}
+
 export async function upsertWikiIndexEntry(repoRoot: string, entry: WikiIndexEntry) {
   const indexPath = join(repoRoot, 'wiki/index.md');
   const current = await readTextFile(indexPath, '# Wiki Index\n');
@@ -44,9 +58,11 @@ export async function upsertWikiIndexEntry(repoRoot: string, entry: WikiIndexEnt
 }
 
 export async function appendWikiLogEntry(repoRoot: string, entry: WikiLogEntry) {
+  assertSourceRefs(entry.sourceRefs);
+
   const logPath = join(repoRoot, 'wiki/log.md');
   const current = await readTextFile(logPath, '# Wiki Change Log\n');
-  const sourceText = entry.sourceRefs.length > 0 ? entry.sourceRefs.join(', ') : 'none';
+  const sourceText = entry.sourceRefs.join(', ');
   const line = `- ${entry.timestamp} ${entry.action} ${entry.page} sources: ${sourceText}`;
 
   await mkdir(dirname(logPath), { recursive: true });
@@ -60,4 +76,27 @@ export async function recordWikiWrite(
 ) {
   await upsertWikiIndexEntry(repoRoot, indexEntry);
   await appendWikiLogEntry(repoRoot, logEntry);
+}
+
+export async function writeWikiPage(repoRoot: string, write: WikiPageWrite) {
+  const parsed = parseWikiPage(write.markdown);
+  assertSourceRefs(parsed.frontmatter.source_refs);
+
+  const pagePath = join(repoRoot, 'wiki', write.path);
+
+  await mkdir(dirname(pagePath), { recursive: true });
+  await writeFile(pagePath, write.markdown, 'utf8');
+  await recordWikiWrite(
+    repoRoot,
+    {
+      title: parsed.frontmatter.title,
+      path: write.path,
+    },
+    {
+      action: write.action,
+      page: write.path,
+      sourceRefs: parsed.frontmatter.source_refs,
+      timestamp: write.timestamp,
+    },
+  );
 }
