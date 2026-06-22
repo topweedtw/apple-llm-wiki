@@ -1,9 +1,12 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { parseWikiPage } from '@apple-llm-wiki/content';
 import type { LLMProvider } from '@apple-llm-wiki/llm';
 import { z } from 'zod';
 import type { GenerateRequest, GenerateResponse, GenerateService } from '../routes/generate.js';
+import {
+  type WikiPageLoader,
+  createFileWikiPageLoader,
+  formatWikiContext,
+  loadWikiPages,
+} from './shared.js';
 
 export const quizQuestionSchema = z
   .object({
@@ -23,15 +26,9 @@ export const quizOutputSchema = z
 
 export type QuizOutput = z.infer<typeof quizOutputSchema>;
 
-export type WikiPageLoader = (wikiPath: string) => Promise<string>;
-
 export type QuizGeneratorOptions = {
   llm: LLMProvider;
   loadWikiPage: WikiPageLoader;
-};
-
-export type FileWikiPageLoaderOptions = {
-  repoRoot: string;
 };
 
 function parseQuestionCount(options: GenerateRequest['options']) {
@@ -52,30 +49,13 @@ function parseJsonObject(text: string): unknown {
   }
 }
 
-export function createFileWikiPageLoader(options: FileWikiPageLoaderOptions): WikiPageLoader {
-  return async (wikiPath) => await readFile(join(options.repoRoot, 'wiki', wikiPath), 'utf8');
-}
+export { createFileWikiPageLoader };
 
 function buildQuizPrompt(input: {
   lang: GenerateRequest['lang'];
   questionCount: number;
-  pages: Array<{
-    path: string;
-    title: string;
-    sourceRefs: string[];
-    content: string;
-  }>;
+  context: string;
 }) {
-  const context = input.pages
-    .map(
-      (page) => `### ${page.path}
-Title: ${page.title}
-Source refs: ${page.sourceRefs.join(', ')}
-
-${page.content.trim()}`,
-    )
-    .join('\n\n');
-
   return `Create ${input.questionCount} multiple-choice quiz questions in ${input.lang}.
 
 Rules:
@@ -86,7 +66,7 @@ Rules:
 - Do not invent facts beyond the provided wiki context.
 
 Wiki context:
-${context}`;
+${input.context}`;
 }
 
 function validateQuizOutput(output: QuizOutput, wikiPaths: string[]) {
@@ -108,25 +88,14 @@ export async function generateQuiz(
   context: { signal: AbortSignal },
   options: QuizGeneratorOptions,
 ): Promise<GenerateResponse> {
-  const pages = await Promise.all(
-    request.wiki_paths.map(async (wikiPath) => {
-      const page = parseWikiPage(await options.loadWikiPage(wikiPath));
-
-      return {
-        content: page.content,
-        path: wikiPath,
-        sourceRefs: page.frontmatter.source_refs,
-        title: page.frontmatter.title,
-      };
-    }),
-  );
+  const pages = await loadWikiPages(request.wiki_paths, options.loadWikiPage);
   const questionCount = parseQuestionCount(request.options);
   const result = await options.llm.generateText({
     abortSignal: context.signal,
     maxOutputTokens: 2_000,
     prompt: buildQuizPrompt({
+      context: formatWikiContext(pages),
       lang: request.lang,
-      pages,
       questionCount,
     }),
     system: 'You generate source-grounded training quizzes from validated wiki pages.',
