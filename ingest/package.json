@@ -5,11 +5,14 @@
   "type": "module",
   "scripts": {
     "ingest:fetch-url": "tsx src/cli.ts fetch-url",
-    "ingest:record-sample": "tsx src/cli.ts record-sample"
+    "ingest:record-sample": "tsx src/cli.ts record-sample",
+    "ingest:upload-file": "tsx src/cli.ts upload-file"
   },
   "dependencies": {
     "@apple-llm-wiki/content": "workspace:*",
-    "cheerio": "^1.2.0"
+    "cheerio": "^1.2.0",
+    "mammoth": "^1.12.0",
+    "pdf-parse": "^2.4.5"
   },
   "devDependencies": {
     "tsx": "^4.21.0"
