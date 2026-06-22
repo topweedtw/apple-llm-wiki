@@ -15,6 +15,7 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "lint": "biome check .",
+    "lint:wiki": "corepack pnpm --filter @apple-llm-wiki/content lint-wiki",
     "format": "biome format --write ."
   },
   "dependencies": {},
