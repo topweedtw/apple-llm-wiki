@@ -10,7 +10,8 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "build": "tsc -b",
-    "typecheck": "tsc -b --pretty false --noEmit",
+    "typecheck": "tsc -b --noEmit",
+    "typecheck:ci": "tsc -b --pretty false --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "lint": "biome check .",
