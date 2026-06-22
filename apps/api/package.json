@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "hono": "^4.12.26"
+    "hono": "^4.12.26",
+    "jose": "^6.2.3"
   }
 }
