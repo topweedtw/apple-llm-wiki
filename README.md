@@ -75,6 +75,8 @@ Postgres skeleton, retained for reference.
 
 - [Architecture Flow](docs/architecture-flow.md)
   - [繁體中文](docs/architecture-flow.zh-TW.md)
+- [Current Development Plan](docs/current-development-plan.md)
+  - [繁體中文](docs/current-development-plan.zh-TW.md)
 - [Implementation Plan](docs/implementation-plan.md)
   - [繁體中文](docs/implementation-plan.zh-TW.md)
 
