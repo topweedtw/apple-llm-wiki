@@ -2,5 +2,11 @@
   "name": "@apple-llm-wiki/ingest",
   "version": "0.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "ingest:record-sample": "tsx src/cli.ts record-sample"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
 }
