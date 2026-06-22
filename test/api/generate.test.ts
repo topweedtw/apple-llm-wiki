@@ -14,6 +14,27 @@ function createGenerateApp(service?: GenerateService, timeoutMs = 60_000) {
   });
 }
 
+function createGenerateAppWithDisclaimer(service: GenerateService) {
+  return createApiApp({
+    generate: {
+      loadDisclaimer: async () => `# Disclaimer
+
+## zh-TW
+
+非官方中文聲明。
+
+## en
+
+Unofficial English disclaimer.`,
+      now: () => new Date('2026-06-22T00:00:00.000Z'),
+      service,
+    },
+    middleware: {
+      auth: false,
+    },
+  });
+}
+
 describe('POST /api/generate', () => {
   it('validates and forwards generate requests to the configured service', async () => {
     const generate = vi.fn(async () => ({
@@ -59,6 +80,39 @@ describe('POST /api/generate', () => {
         signal: expect.any(AbortSignal),
       },
     );
+  });
+
+  it('injects a language-specific disclaimer when configured', async () => {
+    const app = createGenerateAppWithDisclaimer({
+      generate: async () => ({
+        content: '# Quiz',
+        kind: 'quiz',
+        source_refs: ['wiki/products/iphone-17-pro.zh-TW.md'],
+        warnings: [],
+      }),
+    });
+
+    const response = await app.request('/api/generate', {
+      body: JSON.stringify({
+        kind: 'quiz',
+        lang: 'zh-TW',
+        wiki_paths: ['products/iphone-17-pro.zh-TW.md'],
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      content: '> 非官方中文聲明。\n\n# Quiz',
+      disclaimer: '非官方中文聲明。',
+      generated_at: '2026-06-22T00:00:00.000Z',
+      kind: 'quiz',
+      source_refs: ['wiki/products/iphone-17-pro.zh-TW.md'],
+      warnings: [],
+    });
   });
 
   it('rejects invalid generate requests', async () => {
