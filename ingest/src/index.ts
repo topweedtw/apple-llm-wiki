@@ -21,6 +21,11 @@ export {
   type UploadRawSourceRecord,
 } from './upload-source.js';
 export {
+  rewriteRawSourceToWikiPage,
+  type RewrittenWikiPage,
+  type RewriteWikiPageInput,
+} from './rewrite-source.js';
+export {
   appendWikiLogEntry,
   recordWikiWrite,
   upsertWikiIndexEntry,

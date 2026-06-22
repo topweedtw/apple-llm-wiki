@@ -6,10 +6,12 @@
   "scripts": {
     "ingest:fetch-url": "tsx src/cli.ts fetch-url",
     "ingest:record-sample": "tsx src/cli.ts record-sample",
+    "ingest:rewrite-source": "tsx src/cli.ts rewrite-source",
     "ingest:upload-file": "tsx src/cli.ts upload-file"
   },
   "dependencies": {
     "@apple-llm-wiki/content": "workspace:*",
+    "@apple-llm-wiki/llm": "workspace:*",
     "cheerio": "^1.2.0",
     "mammoth": "^1.12.0",
     "pdf-parse": "^2.4.5"
