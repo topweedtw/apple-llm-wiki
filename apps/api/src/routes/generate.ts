@@ -1,6 +1,11 @@
 import type { Context, Hono } from 'hono';
 import { z } from 'zod';
 import type { ApiEnv } from '../env.js';
+import {
+  type DisclaimerLoader,
+  applyDisclaimer,
+  selectDisclaimer,
+} from '../generators/disclaimer.js';
 
 export const generatorKindSchema = z.enum(['quiz', 'video_script', 'sales_script']);
 export const generateRequestSchema = z
@@ -19,6 +24,8 @@ export type GenerateRequest = z.infer<typeof generateRequestSchema>;
 export type GenerateResponse = {
   kind: GenerateRequest['kind'];
   content: string;
+  disclaimer?: string;
+  generated_at?: string;
   source_refs: string[];
   warnings: string[];
 };
@@ -28,6 +35,8 @@ export type GenerateService = {
 };
 
 export type GenerateRouteOptions = {
+  loadDisclaimer?: DisclaimerLoader;
+  now?: () => Date;
   service?: GenerateService;
   timeoutMs?: number;
 };
@@ -94,8 +103,16 @@ export function registerGenerateRoutes(app: Hono<ApiEnv>, options: GenerateRoute
         }),
         timeout.timeoutPromise,
       ]);
+      const generatedAt = (options.now ?? (() => new Date()))().toISOString();
+      const response =
+        options.loadDisclaimer === undefined
+          ? result
+          : applyDisclaimer(result, {
+              disclaimer: selectDisclaimer(await options.loadDisclaimer(), parsed.data.lang),
+              generatedAt,
+            });
 
-      return c.json(result);
+      return c.json(response);
     } catch (error) {
       if (timeout.signal.aborted) {
         return c.json({ error: 'Generate request timed out' }, 504);
