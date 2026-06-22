@@ -1,4 +1,5 @@
 import { fetchUrlSource } from './raw-source.js';
+import { ingestUploadedFileFromPath } from './upload-source.js';
 import { recordWikiWrite } from './wiki-writer.js';
 
 function getRepoRoot() {
@@ -22,9 +23,23 @@ async function main() {
     return;
   }
 
+  if (command === 'upload-file') {
+    const filePath = process.argv[3];
+
+    if (!filePath) {
+      console.error('Usage: pnpm --filter @apple-llm-wiki/ingest ingest:upload-file <path>');
+      process.exitCode = 1;
+      return;
+    }
+
+    const result = await ingestUploadedFileFromPath(getRepoRoot(), filePath);
+    console.info(`Stored ${result.contentPath}`);
+    return;
+  }
+
   if (command !== 'record-sample') {
     console.error(
-      'Usage: pnpm --filter @apple-llm-wiki/ingest ingest:record-sample | ingest:fetch-url <url>',
+      'Usage: pnpm --filter @apple-llm-wiki/ingest ingest:record-sample | ingest:fetch-url <url> | ingest:upload-file <path>',
     );
     process.exitCode = 1;
     return;

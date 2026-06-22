@@ -9,6 +9,18 @@ export {
   type StoredRawSource,
 } from './raw-source.js';
 export {
+  ingestUploadedFile,
+  ingestUploadedFileFromPath,
+  slugFromFilename,
+  storeUploadedRawSource,
+  type StoredUploadRawSource,
+  type UploadParser,
+  type UploadParserMap,
+  type UploadRawSourceInput,
+  type UploadRawSourceOptions,
+  type UploadRawSourceRecord,
+} from './upload-source.js';
+export {
   appendWikiLogEntry,
   recordWikiWrite,
   upsertWikiIndexEntry,
