@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@apple-llm-wiki/content": "workspace:*",
+    "@apple-llm-wiki/llm": "workspace:*",
     "hono": "^4.12.26",
     "jose": "^6.2.3",
     "zod": "^4.4.3"
