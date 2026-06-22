@@ -57,6 +57,9 @@ importers:
       '@apple-llm-wiki/content':
         specifier: workspace:*
         version: link:../packages/content
+      '@apple-llm-wiki/llm':
+        specifier: workspace:*
+        version: link:../packages/llm
       cheerio:
         specifier: ^1.2.0
         version: 1.2.0
