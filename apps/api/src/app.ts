@@ -3,8 +3,10 @@ import { HTTPException } from 'hono/http-exception';
 import type { ApiEnv } from './env.js';
 import { applyGlobalMiddleware } from './middleware/index.js';
 import type { GlobalMiddlewareOptions } from './middleware/index.js';
+import { type GenerateRouteOptions, registerGenerateRoutes } from './routes/generate.js';
 
 export type ApiAppOptions = {
+  generate?: GenerateRouteOptions;
   middleware?: GlobalMiddlewareOptions;
 };
 
@@ -23,6 +25,7 @@ export function createApiApp(options: ApiAppOptions = {}) {
   applyGlobalMiddleware(app, options.middleware);
 
   app.get('/health', (c) => c.json({ status: 'ok' }));
+  registerGenerateRoutes(app, options.generate);
 
   return app;
 }

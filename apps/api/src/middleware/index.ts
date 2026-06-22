@@ -9,5 +9,8 @@ export type GlobalMiddlewareOptions = {
 
 export function applyGlobalMiddleware(app: Hono<ApiEnv>, options: GlobalMiddlewareOptions = {}) {
   app.use('*', requestLogger());
-  app.use('*', authMiddleware(options.auth === false ? undefined : options.auth));
+
+  if (options.auth !== false) {
+    app.use('*', authMiddleware(options.auth));
+  }
 }
