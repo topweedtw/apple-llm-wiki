@@ -6,6 +6,7 @@ import {
   appendWikiLogEntry,
   recordWikiWrite,
   upsertWikiIndexEntry,
+  writeWikiPage,
 } from '../../ingest/src/index.js';
 
 let repoRoot: string;
@@ -57,6 +58,24 @@ describe('wiki writer utilities', () => {
     );
   });
 
+  it('rejects log writes without source refs', async () => {
+    await expect(
+      recordWikiWrite(
+        repoRoot,
+        {
+          title: 'iPhone 17 Pro',
+          path: 'products/iphone-17-pro.zh-TW.md',
+        },
+        {
+          action: 'create',
+          page: 'products/iphone-17-pro.zh-TW.md',
+          sourceRefs: [],
+          timestamp: '2026-06-22T00:00:00.000Z',
+        },
+      ),
+    ).rejects.toThrow(/source_refs/);
+  });
+
   it('records a wiki write in the index and log', async () => {
     await recordWikiWrite(
       repoRoot,
@@ -67,7 +86,7 @@ describe('wiki writer utilities', () => {
       {
         action: 'create',
         page: 'products/iphone-17-pro.zh-TW.md',
-        sourceRefs: [],
+        sourceRefs: ['raw/samples/iphone-17-pro-source.md'],
         timestamp: '2026-06-22T00:00:00.000Z',
       },
     );
@@ -76,6 +95,71 @@ describe('wiki writer utilities', () => {
     const log = await readFile(join(repoRoot, 'wiki/log.md'), 'utf8');
 
     expect(index).toContain('iPhone 17 Pro');
-    expect(log).toContain('create products/iphone-17-pro.zh-TW.md sources: none');
+    expect(log).toContain(
+      'create products/iphone-17-pro.zh-TW.md sources: raw/samples/iphone-17-pro-source.md',
+    );
+  });
+
+  it('validates frontmatter before writing a wiki page', async () => {
+    await writeWikiPage(repoRoot, {
+      action: 'create',
+      path: 'products/iphone-17-pro.zh-TW.md',
+      timestamp: '2026-06-22T00:00:00.000Z',
+      markdown: `---
+type: product
+title: iPhone 17 Pro
+slug: iphone-17-pro
+lang: zh-TW
+siblings:
+  en: products/iphone-17-pro.en.md
+status: draft
+os_version: null
+last_updated: 2026-06-22
+source_count: 1
+source_refs:
+  - raw/samples/iphone-17-pro-source.md
+tags: [iphone]
+ingest_managed_sections: [overview, sources]
+human_owned_sections: [selling_points]
+---
+
+# iPhone 17 Pro
+`,
+    });
+
+    const page = await readFile(join(repoRoot, 'wiki/products/iphone-17-pro.zh-TW.md'), 'utf8');
+    const index = await readFile(join(repoRoot, 'wiki/index.md'), 'utf8');
+    const log = await readFile(join(repoRoot, 'wiki/log.md'), 'utf8');
+
+    expect(page).toContain('# iPhone 17 Pro');
+    expect(index).toContain('- [iPhone 17 Pro](products/iphone-17-pro.zh-TW.md)');
+    expect(log).toContain('raw/samples/iphone-17-pro-source.md');
+  });
+
+  it('rejects wiki pages without source refs', async () => {
+    await expect(
+      writeWikiPage(repoRoot, {
+        action: 'create',
+        path: 'products/iphone-17-pro.zh-TW.md',
+        timestamp: '2026-06-22T00:00:00.000Z',
+        markdown: `---
+type: product
+title: iPhone 17 Pro
+slug: iphone-17-pro
+lang: zh-TW
+status: draft
+os_version: null
+last_updated: 2026-06-22
+source_count: 0
+source_refs: []
+tags: [iphone]
+ingest_managed_sections: [overview, sources]
+human_owned_sections: [selling_points]
+---
+
+# iPhone 17 Pro
+`,
+      }),
+    ).rejects.toThrow(/source_refs/);
   });
 });
