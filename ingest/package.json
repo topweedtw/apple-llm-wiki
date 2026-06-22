@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "ingest:fetch-url": "tsx src/cli.ts fetch-url",
     "ingest:record-sample": "tsx src/cli.ts record-sample"
   },
   "dependencies": {
-    "@apple-llm-wiki/content": "workspace:*"
+    "@apple-llm-wiki/content": "workspace:*",
+    "cheerio": "^1.2.0"
   },
   "devDependencies": {
     "tsx": "^4.21.0"
