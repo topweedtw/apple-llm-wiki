@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "hono": "^4.12.26",
-    "jose": "^6.2.3"
+    "jose": "^6.2.3",
+    "zod": "^4.4.3"
   }
 }
