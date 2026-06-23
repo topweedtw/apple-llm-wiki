@@ -17,6 +17,7 @@ type GenerateApiResponse = {
 };
 
 type GenerateStatus = 'idle' | 'submitting' | 'success' | 'error';
+type ExportStatus = 'idle' | 'copied' | 'downloaded' | 'error';
 
 const views: Array<{ id: View; label: string }> = [
   { id: 'wiki', label: 'Wiki' },
@@ -65,6 +66,32 @@ function formatContent(response: GenerateApiResponse) {
   }
 }
 
+function formatExportText(response: GenerateApiResponse) {
+  const warnings =
+    response.warnings.length > 0
+      ? `\n\n## Warnings\n${response.warnings.map((warning) => `- ${warning}`).join('\n')}`
+      : '';
+  const sourceRefs =
+    response.source_refs.length > 0
+      ? `\n\n## Source refs\n${response.source_refs.map((sourceRef) => `- ${sourceRef}`).join('\n')}`
+      : '';
+  const disclaimer = response.disclaimer
+    ? `\n\n---\n\n## Disclaimer\n${response.disclaimer}`
+    : '\n\n---\n\n## Disclaimer\nNo disclaimer configured for this environment.';
+
+  return `# ${response.kind}
+
+Generated at: ${response.generated_at}
+Content type: ${response.content_type}
+
+${formatContent(response)}${warnings}${sourceRefs}${disclaimer}
+`;
+}
+
+function exportFilename(response: GenerateApiResponse) {
+  return `${response.kind}-${response.generated_at.replace(/[:.]/g, '-')}.${response.content_type === 'json' ? 'json' : 'md'}`;
+}
+
 export function App() {
   const [activeView, setActiveView] = useState<View>('wiki');
   const [health, setHealth] = useState<HealthState>('checking');
@@ -76,6 +103,7 @@ export function App() {
   const [generateStatus, setGenerateStatus] = useState<GenerateStatus>('idle');
   const [generateError, setGenerateError] = useState('');
   const [generateResponse, setGenerateResponse] = useState<GenerateApiResponse | null>(null);
+  const [exportStatus, setExportStatus] = useState<ExportStatus>('idle');
 
   const wikiPaths = useMemo(() => parseWikiPaths(wikiPathsInput), [wikiPathsInput]);
 
@@ -106,6 +134,7 @@ export function App() {
     setGenerateStatus('submitting');
     setGenerateError('');
     setGenerateResponse(null);
+    setExportStatus('idle');
 
     try {
       const response = await fetch(`${getApiBaseUrl()}/api/generate`, {
@@ -134,6 +163,39 @@ export function App() {
       setGenerateError(error instanceof Error ? error.message : 'Generate request failed');
       setGenerateStatus('error');
     }
+  }
+
+  async function copyResult() {
+    if (!generateResponse) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(formatExportText(generateResponse));
+      setExportStatus('copied');
+    } catch {
+      setExportStatus('error');
+    }
+  }
+
+  function downloadResult() {
+    if (!generateResponse) {
+      return;
+    }
+
+    const blob = new Blob([formatExportText(generateResponse)], {
+      type: 'text/plain;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = exportFilename(generateResponse);
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    setExportStatus('downloaded');
   }
 
   return (
@@ -269,6 +331,18 @@ export function App() {
                       <span>{generateResponse.kind}</span>
                       <span>{generateResponse.content_type}</span>
                       <span>{new Date(generateResponse.generated_at).toLocaleString()}</span>
+                    </div>
+
+                    <div className="result-actions">
+                      <button onClick={copyResult} type="button">
+                        Copy
+                      </button>
+                      <button onClick={downloadResult} type="button">
+                        Download
+                      </button>
+                      {exportStatus === 'copied' && <span>Copied with disclaimer</span>}
+                      {exportStatus === 'downloaded' && <span>Downloaded with disclaimer</span>}
+                      {exportStatus === 'error' && <span>Copy failed</span>}
                     </div>
 
                     {generateResponse.warnings.length > 0 && (
