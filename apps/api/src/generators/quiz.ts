@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { GenerateRequest, GenerateResponse, GenerateService } from '../routes/generate.js';
 import { GeneratedOutputError } from './errors.js';
 import { type WikiPageLoader, formatWikiContext, loadWikiPages } from './shared.js';
+import { optionFallbackWarning } from './warnings.js';
 
 export const quizQuestionSchema = z
   .object({
@@ -31,10 +32,25 @@ function parseQuestionCount(options: GenerateRequest['options']) {
   const value = options.question_count;
 
   if (typeof value === 'number' && Number.isInteger(value) && value > 0 && value <= 20) {
-    return value;
+    return {
+      value,
+      warnings: [],
+    };
   }
 
-  return 5;
+  return {
+    value: 5,
+    warnings:
+      value === undefined
+        ? []
+        : [
+            optionFallbackWarning({
+              name: 'question_count',
+              reason: 'is not an integer between 1 and 20',
+              value,
+            }),
+          ],
+  };
 }
 
 function parseJsonObject(text: string): unknown {
@@ -97,7 +113,7 @@ export async function generateQuiz(
     prompt: buildQuizPrompt({
       context: formatWikiContext(pages),
       lang: request.lang,
-      questionCount,
+      questionCount: questionCount.value,
     }),
     system: 'You generate source-grounded training quizzes from validated wiki pages.',
     temperature: 0.2,
@@ -117,7 +133,7 @@ export async function generateQuiz(
     content_type: 'json',
     kind: 'quiz',
     source_refs: request.wiki_paths,
-    warnings: [],
+    warnings: questionCount.warnings,
   };
 }
 

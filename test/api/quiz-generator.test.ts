@@ -203,4 +203,40 @@ describe('quiz generator service', () => {
       ),
     ).rejects.toThrow(/source_ref must cite/);
   });
+
+  it('warns when question_count falls back to the default', async () => {
+    await writeFixture('wiki/products/iphone-17-pro.zh-TW.md', wikiPage);
+    const service = createQuizGenerateService({
+      llm: mockLLM(
+        JSON.stringify({
+          questions: [
+            {
+              answer: 'A',
+              explanation: 'Fallback warning test.',
+              options: ['A', 'B'],
+              question: 'Which option is valid?',
+              source_ref: 'products/iphone-17-pro.zh-TW.md',
+            },
+          ],
+        }),
+      ),
+      loadWikiPage: createFileWikiPageLoader({ repoRoot }),
+    });
+
+    const response = await service.generate(
+      {
+        kind: 'quiz',
+        lang: 'en',
+        options: {
+          question_count: 99,
+        },
+        wiki_paths: ['products/iphone-17-pro.zh-TW.md'],
+      },
+      { signal: new AbortController().signal },
+    );
+
+    expect(response.warnings).toEqual([
+      'Option "question_count" was defaulted because 99 is not an integer between 1 and 20',
+    ]);
+  });
 });

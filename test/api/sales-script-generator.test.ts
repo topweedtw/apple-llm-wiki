@@ -209,4 +209,46 @@ Proof.
       }),
     );
   });
+
+  it('accepts tolerant FAB+P headings and warns when source refs are missing', async () => {
+    await writeFixture('wiki/products/iphone-17-pro.en.md', wikiPage);
+    const service = createSalesScriptGenerateService({
+      llm: mockLLM(`# Sales Demo
+
+### Feature
+
+Feature.
+
+### Advantage
+
+Advantage.
+
+### Benefit
+
+Benefit.
+
+### Proof
+
+Proof.
+`),
+      loadWikiPage: createFileWikiPageLoader({ repoRoot }),
+    });
+
+    const response = await service.generate(
+      {
+        kind: 'sales_script',
+        lang: 'en',
+        options: {
+          duration_minutes: 5,
+        },
+        wiki_paths: ['products/iphone-17-pro.en.md'],
+      },
+      { signal: new AbortController().signal },
+    );
+
+    expect(response.warnings).toEqual([
+      'Option "duration_minutes" was defaulted because 5 is not one of 1, 3, or 10',
+      'sales_script output did not include explicit wiki source references.',
+    ]);
+  });
 });

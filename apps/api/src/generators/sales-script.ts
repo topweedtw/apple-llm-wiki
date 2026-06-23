@@ -2,6 +2,11 @@ import type { LLMProvider } from '@apple-llm-wiki/llm';
 import type { GenerateRequest, GenerateResponse, GenerateService } from '../routes/generate.js';
 import { GeneratedOutputError } from './errors.js';
 import { type WikiPageLoader, formatWikiContext, loadWikiPages } from './shared.js';
+import {
+  markdownContainsAnySourceRef,
+  missingSourceRefsWarning,
+  optionFallbackWarning,
+} from './warnings.js';
 
 export type SalesScriptGeneratorOptions = {
   llm: LLMProvider;
@@ -12,10 +17,25 @@ function parseDurationMinutes(options: GenerateRequest['options']) {
   const value = options.duration_minutes;
 
   if (typeof value === 'number' && [1, 3, 10].includes(value)) {
-    return value;
+    return {
+      value,
+      warnings: [],
+    };
   }
 
-  return 3;
+  return {
+    value: 3,
+    warnings:
+      value === undefined
+        ? []
+        : [
+            optionFallbackWarning({
+              name: 'duration_minutes',
+              reason: 'is not one of 1, 3, or 10',
+              value,
+            }),
+          ],
+  };
 }
 
 function validateSalesScript(markdown: string) {
@@ -26,7 +46,7 @@ function validateSalesScript(markdown: string) {
   const requiredSections = ['Feature', 'Advantage', 'Benefit', 'Proof'];
 
   for (const section of requiredSections) {
-    const pattern = new RegExp(`^##\\s+${section}\\b`, 'm');
+    const pattern = new RegExp(`^#{2,3}\\s+${section}\\b`, 'im');
 
     if (!pattern.test(markdown)) {
       throw new GeneratedOutputError(`Sales script must include "## ${section}" section`);
@@ -66,12 +86,13 @@ export async function generateSalesScript(
 ): Promise<GenerateResponse> {
   const pages = await loadWikiPages(request.wiki_paths, options.loadWikiPage);
   const durationMinutes = parseDurationMinutes(request.options);
+  const warnings = [...durationMinutes.warnings];
   const result = await options.llm.generateText({
     abortSignal: context.signal,
     maxOutputTokens: 3_000,
     prompt: buildSalesScriptPrompt({
       context: formatWikiContext(pages),
-      durationMinutes,
+      durationMinutes: durationMinutes.value,
       lang: request.lang,
     }),
     system: 'You generate source-grounded retail sales scripts from validated wiki pages.',
@@ -80,12 +101,16 @@ export async function generateSalesScript(
 
   validateSalesScript(result.text);
 
+  if (!markdownContainsAnySourceRef(result.text, request.wiki_paths)) {
+    warnings.push(missingSourceRefsWarning(request.kind));
+  }
+
   return {
     content: result.text,
     content_type: 'markdown',
     kind: 'sales_script',
     source_refs: request.wiki_paths,
-    warnings: [],
+    warnings,
   };
 }
 
