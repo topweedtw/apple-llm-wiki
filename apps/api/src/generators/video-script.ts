@@ -1,7 +1,17 @@
 import type { LLMProvider } from '@apple-llm-wiki/llm';
-import type { GenerateRequest, GenerateResponse, GenerateService } from '../routes/generate.js';
+import type {
+  GenerateRequest,
+  GenerateService,
+  GenerateServiceResult,
+} from '../routes/generate.js';
 import { GeneratedOutputError } from './errors.js';
-import { type WikiPageLoader, formatWikiContext, loadWikiPages } from './shared.js';
+import {
+  type WikiPageLoader,
+  checkInlineSourceRefs,
+  formatWikiContext,
+  loadWikiPages,
+} from './shared.js';
+import { optionFallbackWarning } from './warnings.js';
 
 export type VideoScriptGeneratorOptions = {
   llm: LLMProvider;
@@ -12,10 +22,25 @@ function parseDurationMinutes(options: GenerateRequest['options']) {
   const value = options.duration_minutes;
 
   if (typeof value === 'number' && [1, 3, 5, 10].includes(value)) {
-    return value;
+    return {
+      value,
+      warnings: [],
+    };
   }
 
-  return 3;
+  return {
+    value: 3,
+    warnings:
+      value === undefined
+        ? []
+        : [
+            optionFallbackWarning({
+              name: 'duration_minutes',
+              reason: 'is not one of 1, 3, 5, or 10',
+              value,
+            }),
+          ],
+  };
 }
 
 function validateVideoScript(markdown: string) {
@@ -23,11 +48,11 @@ function validateVideoScript(markdown: string) {
     throw new GeneratedOutputError('Video script generator returned empty content');
   }
 
-  if (!/^## Pass 1:/m.test(markdown)) {
+  if (!/^#{2,3}\s+Pass 1\b/im.test(markdown)) {
     throw new GeneratedOutputError('Video script must include "## Pass 1:" section');
   }
 
-  if (!/^## Pass 2:/m.test(markdown)) {
+  if (!/^#{2,3}\s+Pass 2\b/im.test(markdown)) {
     throw new GeneratedOutputError('Video script must include "## Pass 2:" section');
   }
 }
@@ -57,7 +82,7 @@ export async function generateVideoScript(
   request: GenerateRequest,
   context: { signal: AbortSignal },
   options: VideoScriptGeneratorOptions,
-): Promise<GenerateResponse> {
+): Promise<GenerateServiceResult> {
   const pages = await loadWikiPages(request.wiki_paths, options.loadWikiPage);
   const durationMinutes = parseDurationMinutes(request.options);
   const result = await options.llm.generateText({
@@ -65,7 +90,7 @@ export async function generateVideoScript(
     maxOutputTokens: 3_500,
     prompt: buildVideoScriptPrompt({
       context: formatWikiContext(pages),
-      durationMinutes,
+      durationMinutes: durationMinutes.value,
       lang: request.lang,
     }),
     system: 'You generate source-grounded training video scripts from validated wiki pages.',
@@ -79,7 +104,10 @@ export async function generateVideoScript(
     content_type: 'markdown',
     kind: 'video_script',
     source_refs: request.wiki_paths,
-    warnings: [],
+    warnings: [
+      ...durationMinutes.warnings,
+      ...checkInlineSourceRefs(result.text, request.wiki_paths),
+    ],
   };
 }
 

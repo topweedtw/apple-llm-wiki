@@ -177,4 +177,35 @@ Facts only.`),
       ),
     ).rejects.toThrow(/Pass 2/);
   });
+
+  it('accepts tolerant pass headings and warns when source refs are missing', async () => {
+    await writeFixture('wiki/products/iphone-17-pro.en.md', wikiPage);
+    const service = createVideoScriptGenerateService({
+      llm: mockLLM(`### Pass 1 Fact Outline
+
+- Source-grounded fact without an inline path.
+
+### Pass 2 Transcript and Storyboard
+
+Transcript only.`),
+      loadWikiPage: createFileWikiPageLoader({ repoRoot }),
+    });
+
+    const response = await service.generate(
+      {
+        kind: 'video_script',
+        lang: 'en',
+        options: {
+          duration_minutes: 2,
+        },
+        wiki_paths: ['products/iphone-17-pro.en.md'],
+      },
+      { signal: new AbortController().signal },
+    );
+
+    expect(response.warnings).toEqual([
+      'Option "duration_minutes" was defaulted because 2 is not one of 1, 3, 5, or 10',
+      'Missing inline source ref for: products/iphone-17-pro.en.md',
+    ]);
+  });
 });
