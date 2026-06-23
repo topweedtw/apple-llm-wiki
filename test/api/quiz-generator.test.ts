@@ -4,10 +4,8 @@ import { dirname, join } from 'node:path';
 import type { LLMProvider } from '@apple-llm-wiki/llm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApiApp } from '../../apps/api/src/app.js';
-import {
-  createFileWikiPageLoader,
-  createQuizGenerateService,
-} from '../../apps/api/src/generators/quiz.js';
+import { createFileWikiPageLoader } from '../../apps/api/src/generators/node-loaders.js';
+import { createQuizGenerateService } from '../../apps/api/src/generators/quiz.js';
 
 let repoRoot: string;
 

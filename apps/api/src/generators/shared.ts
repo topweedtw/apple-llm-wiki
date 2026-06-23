@@ -1,12 +1,6 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { parseWikiPage } from '@apple-llm-wiki/content';
 
 export type WikiPageLoader = (wikiPath: string) => Promise<string>;
-
-export type FileWikiPageLoaderOptions = {
-  repoRoot: string;
-};
 
 export type LoadedWikiPage = {
   content: string;
@@ -14,10 +8,6 @@ export type LoadedWikiPage = {
   sourceRefs: string[];
   title: string;
 };
-
-export function createFileWikiPageLoader(options: FileWikiPageLoaderOptions): WikiPageLoader {
-  return async (wikiPath) => await readFile(join(options.repoRoot, 'wiki', wikiPath), 'utf8');
-}
 
 export async function loadWikiPages(wikiPaths: string[], loadWikiPage: WikiPageLoader) {
   return await Promise.all(

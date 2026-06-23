@@ -85,7 +85,17 @@ describe('POST /api/generate', () => {
   it('injects a language-specific disclaimer when configured', async () => {
     const app = createGenerateAppWithDisclaimer({
       generate: async () => ({
-        content: '# Quiz',
+        content: JSON.stringify({
+          questions: [
+            {
+              answer: 'A',
+              explanation: 'Because the source says so.',
+              options: ['A', 'B'],
+              question: 'Which option is correct?',
+              source_ref: 'products/iphone-17-pro.zh-TW.md',
+            },
+          ],
+        }),
         kind: 'quiz',
         source_refs: ['wiki/products/iphone-17-pro.zh-TW.md'],
         warnings: [],
@@ -105,13 +115,17 @@ describe('POST /api/generate', () => {
     });
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({
-      content: '> 非官方中文聲明。\n\n# Quiz',
+    const body = (await response.json()) as {
+      content: string;
+      disclaimer: string;
+      generated_at: string;
+    };
+    expect(body.disclaimer).toBe('非官方中文聲明。');
+    expect(body.generated_at).toBe('2026-06-22T00:00:00.000Z');
+    expect(JSON.parse(body.content)).toMatchObject({
       disclaimer: '非官方中文聲明。',
       generated_at: '2026-06-22T00:00:00.000Z',
-      kind: 'quiz',
-      source_refs: ['wiki/products/iphone-17-pro.zh-TW.md'],
-      warnings: [],
+      questions: expect.any(Array),
     });
   });
 

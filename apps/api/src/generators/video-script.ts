@@ -1,18 +1,12 @@
 import type { LLMProvider } from '@apple-llm-wiki/llm';
 import type { GenerateRequest, GenerateResponse, GenerateService } from '../routes/generate.js';
-import {
-  type WikiPageLoader,
-  createFileWikiPageLoader,
-  formatWikiContext,
-  loadWikiPages,
-} from './shared.js';
+import { GeneratedOutputError } from './errors.js';
+import { type WikiPageLoader, formatWikiContext, loadWikiPages } from './shared.js';
 
 export type VideoScriptGeneratorOptions = {
   llm: LLMProvider;
   loadWikiPage: WikiPageLoader;
 };
-
-export { createFileWikiPageLoader };
 
 function parseDurationMinutes(options: GenerateRequest['options']) {
   const value = options.duration_minutes;
@@ -26,15 +20,15 @@ function parseDurationMinutes(options: GenerateRequest['options']) {
 
 function validateVideoScript(markdown: string) {
   if (!markdown.trim()) {
-    throw new Error('Video script generator returned empty content');
+    throw new GeneratedOutputError('Video script generator returned empty content');
   }
 
   if (!/^## Pass 1:/m.test(markdown)) {
-    throw new Error('Video script must include "## Pass 1:" section');
+    throw new GeneratedOutputError('Video script must include "## Pass 1:" section');
   }
 
   if (!/^## Pass 2:/m.test(markdown)) {
-    throw new Error('Video script must include "## Pass 2:" section');
+    throw new GeneratedOutputError('Video script must include "## Pass 2:" section');
   }
 }
 

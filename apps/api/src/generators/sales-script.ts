@@ -1,18 +1,12 @@
 import type { LLMProvider } from '@apple-llm-wiki/llm';
 import type { GenerateRequest, GenerateResponse, GenerateService } from '../routes/generate.js';
-import {
-  type WikiPageLoader,
-  createFileWikiPageLoader,
-  formatWikiContext,
-  loadWikiPages,
-} from './shared.js';
+import { GeneratedOutputError } from './errors.js';
+import { type WikiPageLoader, formatWikiContext, loadWikiPages } from './shared.js';
 
 export type SalesScriptGeneratorOptions = {
   llm: LLMProvider;
   loadWikiPage: WikiPageLoader;
 };
-
-export { createFileWikiPageLoader };
 
 function parseDurationMinutes(options: GenerateRequest['options']) {
   const value = options.duration_minutes;
@@ -26,7 +20,7 @@ function parseDurationMinutes(options: GenerateRequest['options']) {
 
 function validateSalesScript(markdown: string) {
   if (!markdown.trim()) {
-    throw new Error('Sales script generator returned empty content');
+    throw new GeneratedOutputError('Sales script generator returned empty content');
   }
 
   const requiredSections = ['Feature', 'Advantage', 'Benefit', 'Proof'];
@@ -35,7 +29,7 @@ function validateSalesScript(markdown: string) {
     const pattern = new RegExp(`^##\\s+${section}\\b`, 'm');
 
     if (!pattern.test(markdown)) {
-      throw new Error(`Sales script must include "## ${section}" section`);
+      throw new GeneratedOutputError(`Sales script must include "## ${section}" section`);
     }
   }
 }
