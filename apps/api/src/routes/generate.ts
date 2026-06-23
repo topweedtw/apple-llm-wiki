@@ -25,6 +25,7 @@ export type GenerateRequest = z.infer<typeof generateRequestSchema>;
 export type GenerateResponse = {
   kind: GenerateRequest['kind'];
   content: string;
+  content_type: 'json' | 'markdown';
   disclaimer?: string;
   generated_at?: string;
   source_refs: string[];

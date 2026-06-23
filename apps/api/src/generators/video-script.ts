@@ -76,6 +76,7 @@ export async function generateVideoScript(
 
   return {
     content: result.text,
+    content_type: 'markdown',
     kind: 'video_script',
     source_refs: request.wiki_paths,
     warnings: [],

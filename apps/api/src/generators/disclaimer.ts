@@ -1,5 +1,4 @@
 import type { GenerateRequest, GenerateResponse } from '../routes/generate.js';
-import { GeneratedOutputError } from './errors.js';
 
 export type DisclaimerLoader = () => Promise<string>;
 
@@ -38,35 +37,9 @@ export function applyDisclaimer(
     generatedAt: string;
   },
 ): GenerateResponse {
-  if (response.kind === 'quiz') {
-    let content: unknown;
-
-    try {
-      content = JSON.parse(response.content);
-    } catch (error) {
-      throw new GeneratedOutputError(
-        'Quiz content must be valid JSON before disclaimer injection',
-        {
-          cause: error,
-        },
-      );
-    }
-
-    if (typeof content !== 'object' || content === null || Array.isArray(content)) {
-      throw new GeneratedOutputError('Quiz content must be a JSON object');
-    }
-
+  if (response.content_type === 'json') {
     return {
       ...response,
-      content: JSON.stringify(
-        {
-          ...content,
-          disclaimer: input.disclaimer,
-          generated_at: input.generatedAt,
-        },
-        null,
-        2,
-      ),
       disclaimer: input.disclaimer,
       generated_at: input.generatedAt,
     };

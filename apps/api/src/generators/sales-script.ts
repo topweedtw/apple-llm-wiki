@@ -82,6 +82,7 @@ export async function generateSalesScript(
 
   return {
     content: result.text,
+    content_type: 'markdown',
     kind: 'sales_script',
     source_refs: request.wiki_paths,
     warnings: [],

@@ -114,6 +114,7 @@ export async function generateQuiz(
 
   return {
     content: JSON.stringify(parsed.data, null, 2),
+    content_type: 'json',
     kind: 'quiz',
     source_refs: request.wiki_paths,
     warnings: [],

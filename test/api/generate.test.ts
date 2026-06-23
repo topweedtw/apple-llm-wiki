@@ -39,6 +39,7 @@ describe('POST /api/generate', () => {
   it('validates and forwards generate requests to the configured service', async () => {
     const generate = vi.fn(async () => ({
       content: '# Quiz',
+      content_type: 'markdown' as const,
       kind: 'quiz' as const,
       source_refs: ['wiki/products/iphone-17-pro.zh-TW.md'],
       warnings: [],
@@ -63,6 +64,7 @@ describe('POST /api/generate', () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       content: '# Quiz',
+      content_type: 'markdown',
       kind: 'quiz',
       source_refs: ['wiki/products/iphone-17-pro.zh-TW.md'],
       warnings: [],
@@ -96,6 +98,7 @@ describe('POST /api/generate', () => {
             },
           ],
         }),
+        content_type: 'json',
         kind: 'quiz',
         source_refs: ['wiki/products/iphone-17-pro.zh-TW.md'],
         warnings: [],
@@ -122,11 +125,8 @@ describe('POST /api/generate', () => {
     };
     expect(body.disclaimer).toBe('非官方中文聲明。');
     expect(body.generated_at).toBe('2026-06-22T00:00:00.000Z');
-    expect(JSON.parse(body.content)).toMatchObject({
-      disclaimer: '非官方中文聲明。',
-      generated_at: '2026-06-22T00:00:00.000Z',
-      questions: expect.any(Array),
-    });
+    expect(body.content).not.toContain('非官方中文聲明。');
+    expect(JSON.parse(body.content)).toMatchObject({ questions: expect.any(Array) });
   });
 
   it('rejects invalid generate requests', async () => {

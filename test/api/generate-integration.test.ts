@@ -159,26 +159,26 @@ describe('POST /api/generate integration', () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as {
       content: string;
+      content_type: string;
       disclaimer: string;
       generated_at: string;
       kind: string;
     };
     expect(body.kind).toBe('quiz');
+    expect(body.content_type).toBe('json');
     expect(body.disclaimer).toBe('非官方中文聲明。');
     expect(body.generated_at).toBe('2026-06-22T00:00:00.000Z');
-    expect(JSON.parse(body.content)).toMatchObject({
-      disclaimer: '非官方中文聲明。',
-      generated_at: '2026-06-22T00:00:00.000Z',
-      questions: expect.any(Array),
-    });
+    expect(body.content).not.toContain('非官方中文聲明。');
+    expect(JSON.parse(body.content)).toMatchObject({ questions: expect.any(Array) });
   });
 
   it('routes video script generation and prepends disclaimer to markdown', async () => {
     const response = await postGenerate('video_script');
 
     expect(response.status).toBe(200);
-    const body = (await response.json()) as { content: string; kind: string };
+    const body = (await response.json()) as { content: string; content_type: string; kind: string };
     expect(body.kind).toBe('video_script');
+    expect(body.content_type).toBe('markdown');
     expect(body.content).toMatch(/^> 非官方中文聲明。\n\n## Pass 1:/);
   });
 
@@ -186,8 +186,9 @@ describe('POST /api/generate integration', () => {
     const response = await postGenerate('sales_script');
 
     expect(response.status).toBe(200);
-    const body = (await response.json()) as { content: string; kind: string };
+    const body = (await response.json()) as { content: string; content_type: string; kind: string };
     expect(body.kind).toBe('sales_script');
+    expect(body.content_type).toBe('markdown');
     expect(body.content).toMatch(/^> 非官方中文聲明。\n\n## Feature/);
   });
 

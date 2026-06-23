@@ -27,6 +27,7 @@ describe('generate disclaimer injection', () => {
       applyDisclaimer(
         {
           content: '# Video Script',
+          content_type: 'markdown',
           kind: 'video_script',
           source_refs: ['wiki/products/example.md'],
           warnings: [],
@@ -38,6 +39,7 @@ describe('generate disclaimer injection', () => {
       ),
     ).toEqual({
       content: '> Unofficial English disclaimer.\n\n# Video Script',
+      content_type: 'markdown',
       disclaimer: 'Unofficial English disclaimer.',
       generated_at: '2026-06-22T00:00:00.000Z',
       kind: 'video_script',
@@ -60,6 +62,7 @@ describe('generate disclaimer injection', () => {
             },
           ],
         }),
+        content_type: 'json',
         kind: 'quiz',
         source_refs: ['wiki/products/example.md'],
         warnings: [],
@@ -72,10 +75,7 @@ describe('generate disclaimer injection', () => {
 
     expect(result.disclaimer).toBe('Unofficial English disclaimer.');
     expect(result.generated_at).toBe('2026-06-22T00:00:00.000Z');
-    expect(JSON.parse(result.content)).toMatchObject({
-      disclaimer: 'Unofficial English disclaimer.',
-      generated_at: '2026-06-22T00:00:00.000Z',
-      questions: expect.any(Array),
-    });
+    expect(result.content).not.toContain('Unofficial English disclaimer.');
+    expect(JSON.parse(result.content)).toMatchObject({ questions: expect.any(Array) });
   });
 });
