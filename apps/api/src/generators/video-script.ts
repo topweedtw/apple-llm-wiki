@@ -1,7 +1,16 @@
 import type { LLMProvider } from '@apple-llm-wiki/llm';
-import type { GenerateRequest, GenerateService, GenerateServiceResult } from '../routes/generate.js';
+import type {
+  GenerateRequest,
+  GenerateService,
+  GenerateServiceResult,
+} from '../routes/generate.js';
 import { GeneratedOutputError } from './errors.js';
-import { type WikiPageLoader, checkInlineSourceRefs, formatWikiContext, loadWikiPages } from './shared.js';
+import {
+  type WikiPageLoader,
+  checkInlineSourceRefs,
+  formatWikiContext,
+  loadWikiPages,
+} from './shared.js';
 import { optionFallbackWarning } from './warnings.js';
 
 export type VideoScriptGeneratorOptions = {

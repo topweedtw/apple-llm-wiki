@@ -1,6 +1,10 @@
 import type { LLMProvider } from '@apple-llm-wiki/llm';
 import { z } from 'zod';
-import type { GenerateRequest, GenerateService, GenerateServiceResult } from '../routes/generate.js';
+import type {
+  GenerateRequest,
+  GenerateService,
+  GenerateServiceResult,
+} from '../routes/generate.js';
 import { GeneratedOutputError } from './errors.js';
 import { type WikiPageLoader, formatWikiContext, loadWikiPages } from './shared.js';
 import { optionFallbackWarning } from './warnings.js';
