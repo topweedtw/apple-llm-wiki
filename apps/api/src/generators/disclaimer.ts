@@ -1,4 +1,8 @@
-import type { GenerateRequest, GenerateResponse } from '../routes/generate.js';
+import type {
+  GenerateApiResponse,
+  GenerateRequest,
+  GenerateServiceResult,
+} from '../routes/generate.js';
 
 export type DisclaimerLoader = () => Promise<string>;
 
@@ -31,13 +35,13 @@ export function selectDisclaimer(markdown: string, lang: GenerateRequest['lang']
 }
 
 export function applyDisclaimer(
-  response: GenerateResponse,
+  response: GenerateServiceResult,
   input: {
     disclaimer: string;
     generatedAt: string;
   },
-): GenerateResponse {
-  if (response.content_type === 'json') {
+): GenerateApiResponse {
+  if (response.content_type === 'json' || !input.disclaimer) {
     return {
       ...response,
       disclaimer: input.disclaimer,

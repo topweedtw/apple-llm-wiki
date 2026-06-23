@@ -205,7 +205,7 @@ Transcript only.`),
 
     expect(response.warnings).toEqual([
       'Option "duration_minutes" was defaulted because 2 is not one of 1, 3, 5, or 10',
-      'video_script output did not include explicit wiki source references.',
+      'Missing inline source ref for: products/iphone-17-pro.en.md',
     ]);
   });
 });

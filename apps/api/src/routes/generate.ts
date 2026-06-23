@@ -22,18 +22,24 @@ export const generateRequestSchema = z
 
 export type GenerateRequest = z.infer<typeof generateRequestSchema>;
 
-export type GenerateResponse = {
+export type GenerateServiceResult = {
   kind: GenerateRequest['kind'];
   content: string;
   content_type: 'json' | 'markdown';
-  disclaimer?: string;
-  generated_at?: string;
   source_refs: string[];
   warnings: string[];
 };
 
+export type GenerateApiResponse = GenerateServiceResult & {
+  disclaimer: string;
+  generated_at: string;
+};
+
 export type GenerateService = {
-  generate(request: GenerateRequest, context: { signal: AbortSignal }): Promise<GenerateResponse>;
+  generate(
+    request: GenerateRequest,
+    context: { signal: AbortSignal },
+  ): Promise<GenerateServiceResult>;
 };
 
 export type GenerateRouteOptions = {
@@ -115,13 +121,10 @@ export function registerGenerateRoutes(app: Hono<ApiEnv>, options: GenerateRoute
         timeout.timeoutPromise,
       ]);
       const generatedAt = (options.now ?? (() => new Date()))().toISOString();
-      const response =
-        options.loadDisclaimer === undefined
-          ? result
-          : applyDisclaimer(result, {
-              disclaimer: selectDisclaimer(await options.loadDisclaimer(), parsed.data.lang),
-              generatedAt,
-            });
+      const disclaimer = options.loadDisclaimer
+        ? selectDisclaimer(await options.loadDisclaimer(), parsed.data.lang)
+        : '';
+      const response = applyDisclaimer(result, { disclaimer, generatedAt });
 
       return c.json(response);
     } catch (error) {

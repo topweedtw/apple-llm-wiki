@@ -1,12 +1,8 @@
 import type { LLMProvider } from '@apple-llm-wiki/llm';
-import type { GenerateRequest, GenerateResponse, GenerateService } from '../routes/generate.js';
+import type { GenerateRequest, GenerateService, GenerateServiceResult } from '../routes/generate.js';
 import { GeneratedOutputError } from './errors.js';
-import { type WikiPageLoader, formatWikiContext, loadWikiPages } from './shared.js';
-import {
-  markdownContainsAnySourceRef,
-  missingSourceRefsWarning,
-  optionFallbackWarning,
-} from './warnings.js';
+import { type WikiPageLoader, checkInlineSourceRefs, formatWikiContext, loadWikiPages } from './shared.js';
+import { optionFallbackWarning } from './warnings.js';
 
 export type VideoScriptGeneratorOptions = {
   llm: LLMProvider;
@@ -77,10 +73,9 @@ export async function generateVideoScript(
   request: GenerateRequest,
   context: { signal: AbortSignal },
   options: VideoScriptGeneratorOptions,
-): Promise<GenerateResponse> {
+): Promise<GenerateServiceResult> {
   const pages = await loadWikiPages(request.wiki_paths, options.loadWikiPage);
   const durationMinutes = parseDurationMinutes(request.options);
-  const warnings = [...durationMinutes.warnings];
   const result = await options.llm.generateText({
     abortSignal: context.signal,
     maxOutputTokens: 3_500,
@@ -95,16 +90,15 @@ export async function generateVideoScript(
 
   validateVideoScript(result.text);
 
-  if (!markdownContainsAnySourceRef(result.text, request.wiki_paths)) {
-    warnings.push(missingSourceRefsWarning(request.kind));
-  }
-
   return {
     content: result.text,
     content_type: 'markdown',
     kind: 'video_script',
     source_refs: request.wiki_paths,
-    warnings,
+    warnings: [
+      ...durationMinutes.warnings,
+      ...checkInlineSourceRefs(result.text, request.wiki_paths),
+    ],
   };
 }
 

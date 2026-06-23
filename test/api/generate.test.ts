@@ -5,6 +5,7 @@ import type { GenerateService } from '../../apps/api/src/routes/generate.js';
 function createGenerateApp(service?: GenerateService, timeoutMs = 60_000) {
   return createApiApp({
     generate: {
+      now: () => new Date('2026-06-22T00:00:00.000Z'),
       service,
       timeoutMs,
     },
@@ -65,6 +66,8 @@ describe('POST /api/generate', () => {
     await expect(response.json()).resolves.toEqual({
       content: '# Quiz',
       content_type: 'markdown',
+      disclaimer: '',
+      generated_at: '2026-06-22T00:00:00.000Z',
       kind: 'quiz',
       source_refs: ['wiki/products/iphone-17-pro.zh-TW.md'],
       warnings: [],

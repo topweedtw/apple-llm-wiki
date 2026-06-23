@@ -1,6 +1,6 @@
 import type { LLMProvider } from '@apple-llm-wiki/llm';
 import { z } from 'zod';
-import type { GenerateRequest, GenerateResponse, GenerateService } from '../routes/generate.js';
+import type { GenerateRequest, GenerateService, GenerateServiceResult } from '../routes/generate.js';
 import { GeneratedOutputError } from './errors.js';
 import { type WikiPageLoader, formatWikiContext, loadWikiPages } from './shared.js';
 import { optionFallbackWarning } from './warnings.js';
@@ -104,7 +104,7 @@ export async function generateQuiz(
   request: GenerateRequest,
   context: { signal: AbortSignal },
   options: QuizGeneratorOptions,
-): Promise<GenerateResponse> {
+): Promise<GenerateServiceResult> {
   const pages = await loadWikiPages(request.wiki_paths, options.loadWikiPage);
   const questionCount = parseQuestionCount(request.options);
   const result = await options.llm.generateText({

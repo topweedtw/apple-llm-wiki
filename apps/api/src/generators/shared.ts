@@ -35,3 +35,15 @@ ${page.content.trim()}`,
     )
     .join('\n\n');
 }
+
+export function checkInlineSourceRefs(content: string, wikiPaths: string[]): string[] {
+  const warnings: string[] = [];
+
+  for (const path of wikiPaths) {
+    if (!content.includes(`[${path}]`)) {
+      warnings.push(`Missing inline source ref for: ${path}`);
+    }
+  }
+
+  return warnings;
+}
