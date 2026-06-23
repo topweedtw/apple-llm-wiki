@@ -1,12 +1,8 @@
 import type { LLMProvider } from '@apple-llm-wiki/llm';
 import { z } from 'zod';
 import type { GenerateRequest, GenerateResponse, GenerateService } from '../routes/generate.js';
-import {
-  type WikiPageLoader,
-  createFileWikiPageLoader,
-  formatWikiContext,
-  loadWikiPages,
-} from './shared.js';
+import { GeneratedOutputError } from './errors.js';
+import { type WikiPageLoader, formatWikiContext, loadWikiPages } from './shared.js';
 
 export const quizQuestionSchema = z
   .object({
@@ -45,11 +41,14 @@ function parseJsonObject(text: string): unknown {
   try {
     return JSON.parse(text);
   } catch (error) {
-    throw new Error(`Quiz generator returned invalid JSON: ${(error as Error).message}`);
+    throw new GeneratedOutputError(
+      `Quiz generator returned invalid JSON: ${(error as Error).message}`,
+      {
+        cause: error,
+      },
+    );
   }
 }
-
-export { createFileWikiPageLoader };
 
 function buildQuizPrompt(input: {
   lang: GenerateRequest['lang'];
@@ -74,11 +73,13 @@ function validateQuizOutput(output: QuizOutput, wikiPaths: string[]) {
 
   for (const [index, question] of output.questions.entries()) {
     if (!question.options.includes(question.answer)) {
-      throw new Error(`Quiz question ${index + 1} answer must match one option`);
+      throw new GeneratedOutputError(`Quiz question ${index + 1} answer must match one option`);
     }
 
     if (!wikiPathSet.has(question.source_ref)) {
-      throw new Error(`Quiz question ${index + 1} source_ref must cite a requested wiki path`);
+      throw new GeneratedOutputError(
+        `Quiz question ${index + 1} source_ref must cite a requested wiki path`,
+      );
     }
   }
 }
@@ -101,12 +102,19 @@ export async function generateQuiz(
     system: 'You generate source-grounded training quizzes from validated wiki pages.',
     temperature: 0.2,
   });
-  const quiz = quizOutputSchema.parse(parseJsonObject(result.text));
+  const parsed = quizOutputSchema.safeParse(parseJsonObject(result.text));
 
-  validateQuizOutput(quiz, request.wiki_paths);
+  if (!parsed.success) {
+    throw new GeneratedOutputError('Quiz generator returned invalid quiz JSON', {
+      cause: parsed.error,
+    });
+  }
+
+  validateQuizOutput(parsed.data, request.wiki_paths);
 
   return {
-    content: JSON.stringify(quiz, null, 2),
+    content: JSON.stringify(parsed.data, null, 2),
+    content_type: 'json',
     kind: 'quiz',
     source_refs: request.wiki_paths,
     warnings: [],

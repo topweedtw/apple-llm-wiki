@@ -4,10 +4,8 @@ import { dirname, join } from 'node:path';
 import type { LLMProvider } from '@apple-llm-wiki/llm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApiApp } from '../../apps/api/src/app.js';
-import {
-  createFileWikiPageLoader,
-  createSalesScriptGenerateService,
-} from '../../apps/api/src/generators/sales-script.js';
+import { createFileWikiPageLoader } from '../../apps/api/src/generators/node-loaders.js';
+import { createSalesScriptGenerateService } from '../../apps/api/src/generators/sales-script.js';
 
 let repoRoot: string;
 

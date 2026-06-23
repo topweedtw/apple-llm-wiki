@@ -1,16 +1,6 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import type { GenerateRequest, GenerateResponse } from '../routes/generate.js';
 
 export type DisclaimerLoader = () => Promise<string>;
-
-export type FileDisclaimerLoaderOptions = {
-  repoRoot: string;
-};
-
-export function createFileDisclaimerLoader(options: FileDisclaimerLoaderOptions): DisclaimerLoader {
-  return async () => await readFile(join(options.repoRoot, 'wiki', 'DISCLAIMER.md'), 'utf8');
-}
 
 function extractSection(markdown: string, heading: string) {
   const headings = [...markdown.matchAll(/^##\s+(.+)$/gm)];
@@ -47,6 +37,14 @@ export function applyDisclaimer(
     generatedAt: string;
   },
 ): GenerateResponse {
+  if (response.content_type === 'json') {
+    return {
+      ...response,
+      disclaimer: input.disclaimer,
+      generated_at: input.generatedAt,
+    };
+  }
+
   return {
     ...response,
     content: `> ${input.disclaimer}\n\n${response.content}`,

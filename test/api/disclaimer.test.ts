@@ -22,12 +22,13 @@ describe('generate disclaimer injection', () => {
     expect(() => selectDisclaimer('# Disclaimer', 'en')).toThrow(/Disclaimer section not found/);
   });
 
-  it('adds disclaimer metadata and prepends content', () => {
+  it('adds disclaimer metadata and prepends markdown content', () => {
     expect(
       applyDisclaimer(
         {
-          content: '# Quiz',
-          kind: 'quiz',
+          content: '# Video Script',
+          content_type: 'markdown',
+          kind: 'video_script',
           source_refs: ['wiki/products/example.md'],
           warnings: [],
         },
@@ -37,12 +38,44 @@ describe('generate disclaimer injection', () => {
         },
       ),
     ).toEqual({
-      content: '> Unofficial English disclaimer.\n\n# Quiz',
+      content: '> Unofficial English disclaimer.\n\n# Video Script',
+      content_type: 'markdown',
       disclaimer: 'Unofficial English disclaimer.',
       generated_at: '2026-06-22T00:00:00.000Z',
-      kind: 'quiz',
+      kind: 'video_script',
       source_refs: ['wiki/products/example.md'],
       warnings: [],
     });
+  });
+
+  it('injects disclaimer metadata inside quiz JSON content', () => {
+    const result = applyDisclaimer(
+      {
+        content: JSON.stringify({
+          questions: [
+            {
+              answer: 'A',
+              explanation: 'Because the source says so.',
+              options: ['A', 'B'],
+              question: 'Which option is correct?',
+              source_ref: 'wiki/products/example.md',
+            },
+          ],
+        }),
+        content_type: 'json',
+        kind: 'quiz',
+        source_refs: ['wiki/products/example.md'],
+        warnings: [],
+      },
+      {
+        disclaimer: 'Unofficial English disclaimer.',
+        generatedAt: '2026-06-22T00:00:00.000Z',
+      },
+    );
+
+    expect(result.disclaimer).toBe('Unofficial English disclaimer.');
+    expect(result.generated_at).toBe('2026-06-22T00:00:00.000Z');
+    expect(result.content).not.toContain('Unofficial English disclaimer.');
+    expect(JSON.parse(result.content)).toMatchObject({ questions: expect.any(Array) });
   });
 });

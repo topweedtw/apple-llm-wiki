@@ -6,6 +6,7 @@ import {
   applyDisclaimer,
   selectDisclaimer,
 } from '../generators/disclaimer.js';
+import { GeneratedOutputError, WikiPageNotFoundError } from '../generators/errors.js';
 
 export const generatorKindSchema = z.enum(['quiz', 'video_script', 'sales_script']);
 export const generateRequestSchema = z
@@ -24,6 +25,7 @@ export type GenerateRequest = z.infer<typeof generateRequestSchema>;
 export type GenerateResponse = {
   kind: GenerateRequest['kind'];
   content: string;
+  content_type: 'json' | 'markdown';
   disclaimer?: string;
   generated_at?: string;
   source_refs: string[];
@@ -76,6 +78,15 @@ function formatValidationError(error: z.ZodError) {
   }));
 }
 
+function formatErrorDetails(message: string, path?: string) {
+  return [
+    {
+      message,
+      path,
+    },
+  ];
+}
+
 export function registerGenerateRoutes(app: Hono<ApiEnv>, options: GenerateRouteOptions = {}) {
   app.post('/api/generate', async (c) => {
     if (options.service === undefined) {
@@ -116,6 +127,26 @@ export function registerGenerateRoutes(app: Hono<ApiEnv>, options: GenerateRoute
     } catch (error) {
       if (timeout.signal.aborted) {
         return c.json({ error: 'Generate request timed out' }, 504);
+      }
+
+      if (error instanceof WikiPageNotFoundError) {
+        return c.json(
+          {
+            error: 'Wiki page not found',
+            details: formatErrorDetails(`Wiki page not found: ${error.wikiPath}`, 'wiki_paths'),
+          },
+          400,
+        );
+      }
+
+      if (error instanceof GeneratedOutputError) {
+        return c.json(
+          {
+            error: 'Bad generated output',
+            details: formatErrorDetails(error.message),
+          },
+          502,
+        );
       }
 
       throw error;
