@@ -255,6 +255,32 @@ h3 {
   gap: 8px;
 }
 
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-actions button {
+  min-height: 36px;
+  padding: 8px 10px;
+  color: #1f2937;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.result-actions button:hover {
+  background: #f3f4f6;
+}
+
+.result-actions span {
+  color: #4b5563;
+  font-size: 13px;
+}
+
 .result-meta span {
   padding: 5px 8px;
   color: #374151;
